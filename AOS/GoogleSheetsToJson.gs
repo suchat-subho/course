@@ -25,6 +25,19 @@ Access the JSON Data:
         e.g. <a href="https://docs.google.com/spreadsheets/d/1KL-Azsg_x2LUYTzNSQTgU5Kz_oQd1yWsqW6JD3ayf9g/edit#gid=0">URL DB </a>
 */
 
+function convertArrayToDict(arrayOfDicts){
+ var dict = {};
+
+  // Convert the array into a dictionary
+  for (var i = 0; i < arrayOfDicts.length; i++) {
+    var element = arrayOfDicts[i];
+    var shortURL = element.ShortURL;
+    dict[shortURL] = element;
+  }
+  return(dict);
+}
+
+
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]; // Use the first sheet
   var data = sheet.getDataRange().getValues();
@@ -41,7 +54,10 @@ function doGet() {
 
     jsonData.push(rowObject);
   }
+  var mapdict = convertArrayToDict(jsonData);
 
-  return ContentService.createTextOutput(JSON.stringify(jsonData))
+  //return ContentService.createTextOutput(JSON.stringify(jsonData))
+  //  .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(mapdict))
     .setMimeType(ContentService.MimeType.JSON);
 }
