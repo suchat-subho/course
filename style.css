@@ -5,6 +5,25 @@
     background-color: #222;
 }
 
+.course-list li {
+  list-style: none;
+  position: relative;
+  padding-left: 20px;
+}
+
+.course-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color:  
+ lightblue;
+}
+
 .course-note {
     background-color: #333;
     border: 1px solid #444;
