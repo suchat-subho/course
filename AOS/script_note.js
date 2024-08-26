@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h3>${noteData.Description}</h3>
                         <p><strong>Actual URL:</strong> <em>${noteData.URL}</em></p>
                         <p><strong>Short URL:</strong> <em>${shortURI}</em></p>
-                        <p><strong>Link for Short URL:</strong> <a href="${shortURI}" target="_blank" class="button">Go to Short URL</a></p>
+                        <p><a href="${shortURI}" target="_blank" class="button">Go to Short URL</a></p>
                     `;
                     notesContainer.appendChild(note);
                     //const nav = document.createElement('li');
