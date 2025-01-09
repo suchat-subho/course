@@ -8,3 +8,14 @@ This repo provides short URL like feature with Github pages, Google sheets and G
 ├── script.js 				(Gets value from URL and redirects. Otherwise, Shows the complete table from JSON.)
 ├── GoogleSheetFormat.png	(Sample google sheet format screenshot)
 ```````````````````````````````````````
+# Create new course
+	1. Copy `sample` folder
+	2. Rename folder name with the course name
+	3. Find the google sheet at the bottom of `index.html`
+	4. `Make a Copy` of the google sheet with the course name
+	5. Go to `App script` console of the google sheet, and follow the instructions in the comments to deploy and get the WebApp URL
+	6. 
+		a. Update the WebApp URL `sample->script_note.js`
+	 	b. Update the URL of the google sheet in `sample->index.html`
+	 	c. Open `webAppURL` from `script_note.js` in browser and copy the URL in the `jsonURL` field of `index.html` in Line no. 16
+ 	7. Add the course to main page. (i.e. `course->index.html`)
