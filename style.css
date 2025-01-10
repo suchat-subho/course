@@ -32,7 +32,7 @@
 
 .course-note {
     background-color: #333;
-    border: 1px solid #444;
+    border: 2px solid #FCBA03;
     color: #fff;
     padding: 15px; /* Reduce padding for smaller screens */
     width: 100%; /* Make notes full width on smaller screens */
