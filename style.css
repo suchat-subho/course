@@ -1,3 +1,9 @@
+.highlight {
+    background-color: green;
+    color: white; 
+    padding: 2px 4px;
+    border-radius: 3px;
+}
 .keep-container {
     display: flex;
     flex-wrap: wrap;
@@ -34,7 +40,7 @@
 }
 
 a {
-    color: white; /* Unvisited link color */
+    color: blue; /* Unvisited link color */
 }
 
 a:visited {
