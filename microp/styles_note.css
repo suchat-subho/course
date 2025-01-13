@@ -64,6 +64,15 @@
     border-radius: 5px;
 }
 
+.green-box {
+  background-color: green;
+  color: white; /* Ensures text is readable on green background */
+  padding: 10px;
+  border-radius: 5px; /* Optional: rounds the corners */
+  margin: 10px 0; /* Optional: spacing around the box */
+  font-family: Arial, sans-serif; /* Optional: sets a clean font */
+}
+
 .note .short-url-icon {
     /* Adjust font size, color, etc. as needed */
 }
