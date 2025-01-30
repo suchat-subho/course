@@ -1,55 +1,117 @@
-.highlight {
-    background-color: green;
-    color: white; 
-    padding: 2px 4px;
-    border-radius: 3px;
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
+
+/* Header */
+h1 {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Course Container */
 .keep-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px; /* Reduce gap for smaller screens */
-    background-color: #222;
+    justify-content: flex-start; /* Align items in a row on desktops */
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px; /* Limit width for better alignment */
+    margin: auto;
+}
+
+/* Course Cards */
+.course-note {
+    background: linear-gradient(to right, #444, #222);
+    border-radius: 8px;
+    border: 2px solid #FCBA03;
+    color: #fff;
+    padding: 20px;
+    width: 300px; /* Fixed width for desktop */
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.course-note:hover {
+    transform: scale(1.05);
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Course Titles */
+.course-note h2 {
+    font-size: 20px;
+    color: #FCBA03;
+    margin-bottom: 10px;
+}
+
+/* Course List */
+.course-list {
+    padding: 0;
 }
 
 .course-list li {
-  list-style: none;
-  position: relative;
-  padding-left: 20px;
+    list-style: none;
+    position: relative;
+    padding-left: 20px;
+    font-size: 14px;
 }
 
 .course-list li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color:  
- lightblue;
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: lightblue;
 }
 
-.course-note {
-    background-color: #333;
-    border: 2px solid #FCBA03;
-    color: #fff;
-    padding: 15px; /* Reduce padding for smaller screens */
-    width: 100%; /* Make notes full width on smaller screens */
-    box-sizing: border-box; /* Include padding and border in width */
+/* Highlighted Status */
+.highlight {
+    background-color: green;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
+/* Links */
 a {
-    color: blue; /* Unvisited link color */
+    display: inline-block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
 }
 
-a:visited {
-    color: red; /* Visited link color */
+a:hover {
+    color: #FCBA03;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .keep-container {
+        justify-content: center; /* Center boxes on smaller screens */
+    }
 }
 
 @media (max-width: 768px) {
-  /* Styles for screens smaller than 768px */
-  .course-note {
-    padding: 10px;
-  }
+    .keep-container {
+        flex-direction: column; /* Stack items vertically on mobile */
+        align-items: center;
+    }
+    .course-note {
+        width: 90%; /* Make cards full-width for mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .course-note {
+        width: 100%; /* Ensure full width on very small screens */
+    }
 }
