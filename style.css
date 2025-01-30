@@ -115,3 +115,22 @@ a:hover {
         width: 100%; /* Ensure full width on very small screens */
     }
 }
+
+/* Ticker Animation */
+  @keyframes ticker {
+      0% { opacity: 0.5; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0.5; transform: scale(0.9); }
+  }
+
+.ticker-box {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgb(252, 186, 3);
+            color: #121212;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(252, 186, 3, 0.8);
+            animation: ticker 3s infinite;
+        }
