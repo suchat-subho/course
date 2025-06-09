@@ -14,8 +14,10 @@
     DeploymentID = AKfycbysrT07PwASYMQodSYOXIOIFDZbBtZZU_5l_97Mw8Frdzs1RsryKeiGwFYb7LlZXSi7VA
     --------------------------------------------------------------------->
     <script>
-        const webAppURL = 'https://script.google.com/macros/s/AKfycbxEOyAANLD_TOtvK4ltSj98sgYU4E2G2u0h-jEfOj4skxaTQoF3Hlb2eHW12aKq8cuuhQ/exec'
-        const sheetURL = 'https://docs.google.com/spreadsheets/d/1POh9C2N0DXVjNn21y0lxoQvFoCulFeFTmC5hsrMcPbo/'        
+        const webAppURL = 'https://script.google.com/macros/s/AKfycbxEOyAANLD_TOtvK4ltSj98sgYU4E2G2u0h-jEfOj4skxaTQoF3Hlb2eHW12aKq8cuuhQ/exec';
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/1POh9C2N0DXVjNn21y0lxoQvFoCulFeFTmC5hsrMcPbo/';
+        const jsonURL = 'https://script.google.com/macros/s/AKfycbxEOyAANLD_TOtvK4ltSj98sgYU4E2G2u0h-jEfOj4skxaTQoF3Hlb2eHW12aKq8cuuhQ/exec';
+        
 
         // Function to extract the URL parameter by name
         function getURLParameter(name) {
@@ -30,12 +32,9 @@
         var value = getURLParameter('url');
         //alert("ShortURL="+(""+value).length);
         if((""+value).length != 0){
-            // Fetch the JSON data from URL
-            //alert("URL:" +webAppURL);
-            fetch(webAppURL)
-                .then(response => {response.json();
-                    //alert("URL:" +jsonURL);
-                })
+            // Fetch the JSON data
+            fetch(jsonURL)
+                .then(response => response.json())
                 .then(redirectMap => {
                     if (redirectMap.hasOwnProperty(value)) {
                         var URL = redirectMap[value].URL;
@@ -49,7 +48,6 @@
                 .catch(error => {
                     alert("Error:"+error.message);
                 });
-            ////alert("Response:" + response.json);
         }else{
             document.title = 'List of Short URLs for the course';
             body.innerHTML = '<center><div class="container" id="notes-header"> <h1>List of Short-URLs</h1></div></center> <div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'

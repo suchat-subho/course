@@ -11,10 +11,11 @@
 <body>
     <!----------------------------------------------------------------------
     Open `webAppURL` from script_note.js in browser and copy the URL in the following `jsonURL`
+    DeploymentID = AKfycbysrT07PwASYMQodSYOXIOIFDZbBtZZU_5l_97Mw8Frdzs1RsryKeiGwFYb7LlZXSi7VA
     --------------------------------------------------------------------->
     <script>
-        const jsonURL = 'https://script.googleusercontent.com/macros/echo?user_content_key=EpSJ39f6fr5f_eq8htKoGo8lMZqQ8QxNlMB6Ybpko9UMzQUyvi49h6dYSAwKXQ5KNQ6KFZeVm7GljPIW-hgQxtFi3rX7EmM6m5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnPMU36h8P4mABxSXKHxFebmdy_J9kp9S0Mhjl6DGMZIndF5tENK5mhQ1huSI-2dqSTL1s1TXPCsr6stOTuvDG40VUNeWozrUmtz9Jw9Md8uu&lib=MJGbCK6QF5AhVX6oaFRgVEeZNomVPhu3r';
-        
+        const webAppURL = 'https://script.google.com/macros/s/AKfycbxEOyAANLD_TOtvK4ltSj98sgYU4E2G2u0h-jEfOj4skxaTQoF3Hlb2eHW12aKq8cuuhQ/exec'
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/1POh9C2N0DXVjNn21y0lxoQvFoCulFeFTmC5hsrMcPbo/'        
 
         // Function to extract the URL parameter by name
         function getURLParameter(name) {
@@ -29,9 +30,12 @@
         var value = getURLParameter('url');
         //alert("ShortURL="+(""+value).length);
         if((""+value).length != 0){
-            // Fetch the JSON data
-            fetch(jsonURL)
-                .then(response => response.json())
+            // Fetch the JSON data from URL
+            //alert("URL:" +webAppURL);
+            fetch(webAppURL)
+                .then(response => {response.json();
+                    //alert("URL:" +jsonURL);
+                })
                 .then(redirectMap => {
                     if (redirectMap.hasOwnProperty(value)) {
                         var URL = redirectMap[value].URL;
@@ -45,6 +49,7 @@
                 .catch(error => {
                     alert("Error:"+error.message);
                 });
+            ////alert("Response:" + response.json);
         }else{
             document.title = 'List of Short URLs for the course';
             body.innerHTML = '<center><div class="container" id="notes-header"> <h1>List of Short-URLs</h1></div></center> <div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
@@ -56,9 +61,14 @@ Update the following URL to point to the google sheet
 --------------------------------------------------------------------->
 <script src="script_note.js"></script>
 <center>
-    <a href="https://docs.google.com/spreadsheets/d/1d4OAo7hZFw_XwL0EPMw6n4_JK3UzpxSBQRicOl-yIys/" target="_blank">
-        <img src="../icon/sheet_icon.webp" alt="Google Sheets" style="width: 10px; height: 10px;">
-    </a>
+    <div id="linkContainer"></div>
+<script type="text/javascript">
+if(webAppURL.length>0){const a=document.createElement('a');a.href=sheetURL;a.target="_blank";a.style.cssText="display:inline-block;margin-top:30px;font-size:16px;color:#007BFF;text-decoration:none";const i=document.createElement('img');i.src="../icon/sheet_icon.webp";i.alt="List";i.style.cssText="width:10px;height:10px";a.appendChild(i);document.getElementById('linkContainer').appendChild(a);}
+</script>
+<script type="text/javascript">
+if(webAppURL.length>0){const a=document.createElement('a');a.href=webAppURL;a.target="_blank";a.style.cssText="display:inline-block;margin-top:30px;font-size:16px;color:#007BFF;text-decoration:none";const i=document.createElement('img');i.src="../icon/json_icon.webp";i.alt="JSON";i.style.cssText="width:10px;height:10px";a.appendChild(i);document.getElementById('linkContainer').appendChild(a);}
+</script>
+
 </center>
 
 <!--center><a href="https://docs.google.com/spreadsheets/d/1bXcl9pq2Vb2phJhN99TxtkCmkIyJr0kUtT9yVu2WeEg/" target="_blank">Google Sheets</a></center-->

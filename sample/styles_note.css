@@ -113,3 +113,10 @@
 .sidebar ul li a:hover {
     color: #007BFF;
 }
+
+#linkContainer {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 30px;
+}
