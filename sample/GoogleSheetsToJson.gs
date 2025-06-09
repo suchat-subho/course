@@ -1,5 +1,6 @@
 /*
-Create Google Sheet
+Create Google Sheet with "Anyone can View" priviledge
+Update the variable named "SPREADSHEET_URL" with the spreadsheet URL 
 
 In the first sheet 
     add three columns "Description", "URL", "ShortURLID"
@@ -19,11 +20,9 @@ Deploy the Web App:
     Click "Deploy" and review and accept the permissions.
 Access the JSON Data:
     After deploying the web app, you'll receive a URL. Open this URL in your web browser, and it will return the JSON data.
-    Use the same URL in index.html and script_note.js
-        e.g. const jsonURL = 'https://script.googleusercontent.com/macros/echo?user_content_key=-.....';
-    Add the google sheet URL in Line # 115
-        e.g. <a href="https://docs.google.com/spreadsheets/d/1KL-Azsg_x2LUYTzNSQTgU5Kz_oQd1yWsqW6JD3ayf9g/edit#gid=0">URL DB </a>
+    Use the same URL in index.html variable named "webAppURL" and "jsonURL"; Use the URL of the spreadsheet in the variable named "sheetURL"
 */
+SPREADSHEET_URL="https://docs.google.com/spreadsheets/d/1POh9C2N0DXVjNn21y0lxoQvFoCulFeFTmC5hsrMcPbo/"
 
 function convertArrayToDict(arrayOfDicts){
  var dict = {};
@@ -34,12 +33,13 @@ function convertArrayToDict(arrayOfDicts){
     var shortURL = element.ShortURL;
     dict[shortURL] = element;
   }
+  Logger.log(dict); //// Log the entire dictionary for debugging purpose 
   return(dict);
 }
 
 
 function doGet() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0]; // Use the first sheet
+  var sheet = SpreadsheetApp.openByUrl(SPREADSHEET_URL).getSheets()[0]; // Use the first sheet
   var data = sheet.getDataRange().getValues();
   var headers = data[0];
   var jsonData = [];
