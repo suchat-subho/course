@@ -120,3 +120,33 @@
   gap: 40px;
   margin-top: 30px;
 }
+
+body {
+    display: flex;
+    flex-direction: column; /* Changed to column to place links at the very top */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#top-links {
+    background-color: #e6e6e6;
+    padding: 10px 20px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+#top-links a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #007BFF;
+    font-weight: bold;
+}
+
+#top-links a:hover {
+    text-decoration: underline;
+}
+
+#content-wrapper {
+    display: flex;
+    flex-grow: 1; /* Allows the content wrapper to take up remaining space */
+}

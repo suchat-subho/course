@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List of Short URLs</title>
-    <link rel="stylesheet" href="path/to/fontawesome.min.css">
+    <title>OOP</title>
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="styles_note.css">
 </head>
 <!----------------------------------------------------------------------->
 <body>
+    <!---------------------------------------------------------------------->
+    
     <!----------------------------------------------------------------------
     Open `webAppURL` from script_note.js in browser and copy the URL in the following `jsonURL`
     DeploymentID = AKfycbysrT07PwASYMQodSYOXIOIFDZbBtZZU_5l_97Mw8Frdzs1RsryKeiGwFYb7LlZXSi7VA
@@ -17,6 +19,7 @@
         const webAppURL = 'https://script.google.com/macros/s/AKfycbxEOyAANLD_TOtvK4ltSj98sgYU4E2G2u0h-jEfOj4skxaTQoF3Hlb2eHW12aKq8cuuhQ/exec';
         const sheetURL = 'https://docs.google.com/spreadsheets/d/1POh9C2N0DXVjNn21y0lxoQvFoCulFeFTmC5hsrMcPbo/';
         const jsonURL = 'https://script.google.com/macros/s/AKfycbxEOyAANLD_TOtvK4ltSj98sgYU4E2G2u0h-jEfOj4skxaTQoF3Hlb2eHW12aKq8cuuhQ/exec';
+        const COURSENAME="Object Oriented Programing (UTA018)"
         
 
         // Function to extract the URL parameter by name
@@ -49,9 +52,9 @@
                     alert("Error:"+error.message);
                 });
         }else{
-            document.title = 'List of Short URLs for the course';
-            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>List of Short-URLs</h1></div></center> <div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
-        }
+            document.title = 'OOP';
+            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>'+COURSENAME+'</h1></div></center><div id="top-links"><a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a><a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a></div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
+        }        
         //document.getElementById('loading-message').style.display = 'none';
     </script>
 <!----------------------------------------------------------------------
