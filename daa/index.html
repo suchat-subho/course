@@ -20,6 +20,7 @@
         const sheetURL = 'https://docs.google.com/spreadsheets/d/18nKTdl5obIpfgoLWjCqWVC76Y4JYBZK7xkaNRrZ0tKw/';
         const jsonURL = webAppURL;
         const COURSENAME="Design &amp Analysis of Algorithms (UCS415)"
+        const COURSESHORT="DAA"
         
 
         // Function to extract the URL parameter by name
@@ -52,8 +53,8 @@
                     alert("Error:"+error.message);
                 });
         }else{
-            document.title = 'OOP';
-            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>'+COURSENAME+'</h1></div></center><div id="top-links"><a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a><a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a></div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
+            document.title = COURSESHORT;
+            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>'+COURSENAME+'</h1></div></center><div id="top-links">|<a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a>|<a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a>|<a href="https://suchat-subho.github.io/course/timetable/" target="_blank">Time Table</a>|</div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
         }        
         //document.getElementById('loading-message').style.display = 'none';
     </script>
