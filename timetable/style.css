@@ -108,3 +108,48 @@ nav a:hover {
     color: rgb(252, 186, 3);
     background: none;
 }
+
+
+
+/* Hamburger icon */
+#menuBtn {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    font-size: 26px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: #fff;
+    margin: 8% auto;
+    padding: 20px;
+    width: 60%;
+    border-radius: 8px;
+    max-height: 70%;
+    overflow-y: auto;
+}
+
+.close {
+    float: right;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+#classList li {
+    margin: 8px 0;
+    line-height: 1.4;
+}
