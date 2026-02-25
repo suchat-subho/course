@@ -10,6 +10,7 @@
 </head>
 <!----------------------------------------------------------------------->
 <body>
+    <div class="loading-container"><div class="loading-message">  Please wait ...  </div><div class="loader"></div></div>
     <!---------------------------------------------------------------------->
     
     <!----------------------------------------------------------------------
@@ -32,7 +33,7 @@
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
         var body = document.body;
-        body.innerHTML = '<div class="loading-container"><div class="loading-message">  Please wait ...  </div><div class="loader"></div></div>';
+        //body.innerHTML = '<div class="loading-container"><div class="loading-message">  Please wait ...  </div><div class="loader"></div></div>';
         // Get the value from the URL
         var value = getURLParameter('url');
         //alert("ShortURL="+(""+value).length);
@@ -55,7 +56,7 @@
                 });
         }else{
             document.title = COURSESHORT;
-            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>'+COURSENAME+'</h1></div></center><div id="top-links">|<a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a>|<a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a>|<a href="https://suchat-subho.github.io/course/timetable/" target="_blank">Time Table</a>|</div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
+            body.innerHTML += '<center><div class="container" id="notes-header"> <h1><center>'+COURSENAME+'</center></h1></div></center><div id="top-links">|<a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a>|<a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a>|<a href="https://suchat-subho.github.io/course/timetable/" target="_blank">Time Table</a>|</div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
         }        
         //document.getElementById('loading-message').style.display = 'none';
     </script>
