@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-
     const notesContainer = document.getElementById('notes-container');
     const sideNav = document.getElementById('sidenav');
 
@@ -11,18 +10,17 @@ document.addEventListener('DOMContentLoaded', function () {
             return response.json();
         })
         .then(data => {
-            const URI = window.location.href;
+            URI = window.location.href;
 
             for (const key in data) {
                 if (data.hasOwnProperty(key)) {
                     const noteData = data[key];
-
                     const note = document.createElement('div');
                     note.className = 'note';
 
-                    const shortURI = URI + "?url=" + noteData.ShortURL;
+                    shortURI = URI + "?url=" + noteData.ShortURL;
 
-                    const comment = (!noteData.Comment || noteData.Comment.length === 0)
+                    let comment = !noteData.Comment || noteData.Comment.length === 0
                         ? ""
                         : `<div class="green-box"><p><strong>Note:</strong> ${noteData.Comment}</p></div>`;
 
@@ -38,23 +36,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            /* ✅ HIDE LOADER AFTER CONTENT IS READY */
-            if (typeof hideLoader === "function") {
-                hideLoader();
-            }
+            /* ✅ CRITICAL FIX: remove loader AFTER content is ready */
+            const loader = document.querySelector('.loading-container');
+            if (loader) loader.remove();
         })
         .catch(error => {
-            console.error(error.message);
+            console.log(error.message);
 
-            /* Hide loader even on failure */
-            if (typeof hideLoader === "function") {
-                hideLoader();
-            }
+            /* also remove loader on error */
+            const loader = document.querySelector('.loading-container');
+            if (loader) loader.remove();
         });
-});
-
-window.addEventListener("load", () => {
-    if (typeof hideLoader === "function") {
-        hideLoader();
-    }
 });
