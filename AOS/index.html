@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDD</title>
+    <title>XXX</title>
     <link rel="icon" type="image/x-icon" href="logo.png">
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="styles_note.css">
@@ -22,7 +22,7 @@
         const jsonURL = webAppURL;
         const COURSENAME="Adavanced Operating Systems (CS/IT403)"
         const COURSESHORT="AOS"
-        
+        document.title = COURSESHORT;
 
         // Function to extract the URL parameter by name
         function getURLParameter(name) {
@@ -54,7 +54,6 @@
                     alert("Error:"+error.message);
                 });
         }else{
-            document.title = COURSESHORT;
             body.innerHTML = '<center><div class="container" id="notes-header"> <h1>'+COURSENAME+'</h1></div></center><div id="top-links">|<a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a>|<a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a>|<a href="https://suchat-subho.github.io/course/timetable/" target="_blank">Time Table</a>|</div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
         }        
         //document.getElementById('loading-message').style.display = 'none';
