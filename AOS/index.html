@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List of Short URLs</title>
-    <link rel="stylesheet" href="path/to/fontawesome.min.css">
+    <title>CDD</title>
+    <link rel="icon" type="image/x-icon" href="logo.png">
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="styles_note.css">
 </head>
 <!----------------------------------------------------------------------->
 <body>
+    <!---------------------------------------------------------------------->
+    
+    <!----------------------------------------------------------------------
+    Open `webAppURL` from script_note.js in browser and copy the URL in the following `jsonURL`
+    DeploymentID = AKfycbysrT07PwASYMQodSYOXIOIFDZbBtZZU_5l_97Mw8Frdzs1RsryKeiGwFYb7LlZXSi7VA
+    --------------------------------------------------------------------->
     <script>
-        // const jsonURL = 'https://script.googleusercontent.com/macros/echo?user_content_key=-nf7HtnAq_0htG1VeTn-eIqjG7DG2zmJVAB9hWC3ghXihLe0aPd4Z5uHfso8dyf3px8_s0aqadWfwTLmhpF3F8T4JLVykrupm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnBgmdpr5BW5TgBjlEPPDofIM2_kNrBC71ajuEfM6JLC4DUaHCjcXJ17FzCh84gbx3gVxNwEBAPUaEcM9aEljYTZS6Ic6skGQNdz9Jw9Md8uu&lib=MiS8nA0IP1S5-p0rxnHc8P-ZNomVPhu3r';
-        const jsonURL = 'https://script.googleusercontent.com/macros/echo?user_content_key=rAfy_fZEGxiRPG8ScAoOxYFWVRZ7Hz2vlgGirm5ejheqI8Nf-4adaT72qZXqA8qRkjOeUniKS_WOqgUoqatY29xFNil47-PFm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnHdxFrP1KB_CnXlU3k-7V8yuADIHkhcP2JDP2oBFgnpC3jUjg0OQJNRvmhEqzhWM6P69VPgb_Untl_CBSFxlXn9u0GGhVRoY8Nz9Jw9Md8uu&lib=Mo_yOa5ZoFf4DSluyJP0PAeZNomVPhu3r';
+        const webAppURL = 'https://script.google.com/macros/s/AKfycbz6EJ23Kl4U6-5QjrB4SfIZAYfALakpHb-1DB1O-w7aQ6WuhwN2xqgjr_6F55vR5iIJhA/exec';
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/1qJvsg0L-hJ4FKWEJapAziarDWEvoYa1Z7xvZ60LGMy4/';
+        const jsonURL = webAppURL;
+        const COURSENAME="Adavanced Operating Systems (CS/IT403)"
+        const COURSESHORT="AOS"
         
 
         // Function to extract the URL parameter by name
@@ -44,19 +54,39 @@
                     alert("Error:"+error.message);
                 });
         }else{
-            document.title = 'List of Short URLs for the course';
-            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>List of Short-URLs</h1></div></center> <div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
-        }
+            document.title = COURSESHORT;
+            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>'+COURSENAME+'</h1></div></center><div id="top-links">|<a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a>|<a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a>|<a href="https://suchat-subho.github.io/course/timetable/" target="_blank">Time Table</a>|</div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
+        }        
         //document.getElementById('loading-message').style.display = 'none';
     </script>
-<!----------------------------------------------------------------------->
+    <div id="loading-overlay"><div class="loading-box">
+        <div class="spinner"></div>
+        <div class="loading-text">Please wait...</div>
+    </div></div>
+    <script>
+        function showLoader() {
+            const l = document.getElementById("loading-overlay");
+            if (l) l.style.display = "flex";
+        }
 
-<!----------------------------------------------------------------------->
+        function hideLoader() {
+            const l = document.getElementById("loading-overlay");
+            if (l) l.style.display = "none";
+        }
+    </script>
+<!----------------------------------------------------------------------
+Update the following URL to point to the google sheet
+--------------------------------------------------------------------->
 <script src="script_note.js"></script>
 <center>
-    <a href="https://docs.google.com/spreadsheets/d/1bXcl9pq2Vb2phJhN99TxtkCmkIyJr0kUtT9yVu2WeEg/" target="_blank">
-        <img src="../icon/sheet_icon.webp" alt="Google Sheets" style="width: 10px; height: 10px;">
-    </a>
+    <div id="linkContainer"></div>
+<script type="text/javascript">
+if(webAppURL.length>0){const a=document.createElement('a');a.href=sheetURL;a.target="_blank";a.style.cssText="display:inline-block;margin-top:30px;font-size:16px;color:#007BFF;text-decoration:none";const i=document.createElement('img');i.src="../icon/sheet_icon.webp";i.alt="List";i.style.cssText="width:10px;height:10px";a.appendChild(i);document.getElementById('linkContainer').appendChild(a);}
+</script>
+<script type="text/javascript">
+if(webAppURL.length>0){const a=document.createElement('a');a.href=webAppURL;a.target="_blank";a.style.cssText="display:inline-block;margin-top:30px;font-size:16px;color:#007BFF;text-decoration:none";const i=document.createElement('img');i.src="../icon/json_icon.webp";i.alt="JSON";i.style.cssText="width:10px;height:10px";a.appendChild(i);document.getElementById('linkContainer').appendChild(a);}
+</script>
+
 </center>
 
 <!--center><a href="https://docs.google.com/spreadsheets/d/1bXcl9pq2Vb2phJhN99TxtkCmkIyJr0kUtT9yVu2WeEg/" target="_blank">Google Sheets</a></center-->

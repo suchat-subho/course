@@ -1,3 +1,40 @@
+/* ---------- Loading Overlay ---------- */
+#loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-box {
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid #ddd;
+    border-top: 6px solid #007BFF;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px auto;
+}
+
+.loading-text {
+    font-size: 16px;
+    color: #333;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
 .loading-container {
     text-align: center;
 }
@@ -74,6 +111,15 @@
     border-radius: 5px;
 }
 
+.green-box {
+  background-color: green;
+  color: white; /* Ensures text is readable on green background */
+  padding: 10px;
+  border-radius: 5px; /* Optional: rounds the corners */
+  margin: 10px 0; /* Optional: spacing around the box */
+  font-family: Arial, sans-serif; /* Optional: sets a clean font */
+}
+
 .note .short-url-icon {
     /* Adjust font size, color, etc. as needed */
 }
@@ -103,4 +149,41 @@
 
 .sidebar ul li a:hover {
     color: #007BFF;
+}
+
+#linkContainer {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 30px;
+}
+
+body {
+    display: flex;
+    flex-direction: column; /* Changed to column to place links at the very top */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#top-links {
+    background-color: #e6e6e6;
+    padding: 10px 20px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+#top-links a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #007BFF;
+    font-weight: bold;
+}
+
+#top-links a:hover {
+    text-decoration: underline;
+}
+
+#content-wrapper {
+    display: flex;
+    flex-grow: 1; /* Allows the content wrapper to take up remaining space */
 }
