@@ -1,7 +1,7 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const notesContainer = document.getElementById('notes-container');
     const sideNav = document.getElementById('sidenav');
-    //alert(webAppURL);
+
     fetch(webAppURL)
         .then(response => {
             if (!response.ok) {
@@ -11,15 +11,19 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             URI = window.location.href;
+
             for (const key in data) {
                 if (data.hasOwnProperty(key)) {
                     const noteData = data[key];
                     const note = document.createElement('div');
                     note.className = 'note';
-                    //note.id="${noteData.ShortURL}"
+
                     shortURI = URI + "?url=" + noteData.ShortURL;
+
                     let comment = !noteData.Comment || noteData.Comment.length === 0
-                                 ? "" : `<div class="green-box"><p><strong>Note:</strong> ${noteData.Comment}</p></div>`;
+                        ? ""
+                        : `<div class="green-box"><p><strong>Note:</strong> ${noteData.Comment}</p></div>`;
+
                     note.innerHTML = `
                         <h3>${noteData.Description}</h3>
                         <p><strong>Actual URL:</strong> <em>${noteData.URL}</em></p>
@@ -27,14 +31,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p><a href="${shortURI}" target="_blank" class="button">Go to Short URL</a></p>
                         ${comment}
                     `;
+
                     notesContainer.appendChild(note);
-                    //const nav = document.createElement('li');
-                    //nav.innerHTML=`<li><a href="#${noteData.ShortURL}">${noteData.Description}</a></li>`;
-                    //sidenav.appendChild(nav);
                 }
             }
+
+            /* ✅ CRITICAL FIX: remove loader AFTER content is ready */
+            const loader = document.querySelector('.loading-container');
+            if (loader) loader.remove();
         })
         .catch(error => {
             console.log(error.message);
+
+            /* also remove loader on error */
+            const loader = document.querySelector('.loading-container');
+            if (loader) loader.remove();
         });
 });
