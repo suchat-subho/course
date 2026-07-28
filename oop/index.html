@@ -20,7 +20,9 @@
         const sheetURL = 'https://docs.google.com/spreadsheets/d/1POh9C2N0DXVjNn21y0lxoQvFoCulFeFTmC5hsrMcPbo/';
         const jsonURL = 'https://script.google.com/macros/s/AKfycbxEOyAANLD_TOtvK4ltSj98sgYU4E2G2u0h-jEfOj4skxaTQoF3Hlb2eHW12aKq8cuuhQ/exec';
         const COURSENAME="Object Oriented Programing (UTA018)"
-        
+        const COURSESHORT="OOP"
+        document.title = COURSESHORT;
+
 
         // Function to extract the URL parameter by name
         function getURLParameter(name) {
@@ -52,8 +54,8 @@
                     alert("Error:"+error.message);
                 });
         }else{
-            document.title = 'OOP';
-            body.innerHTML = '<center><div class="container" id="notes-header"> <h1>'+COURSENAME+'</h1></div></center><div id="top-links"><a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a><a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a></div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
+            document.title = COURSESHORT;
+            body.innerHTML += '<center><div class="container" id="notes-header"> <h1><center>'+COURSENAME+'</center></h1></div></center><div id="top-links">|<a href="https://subhrendu1987.github.io/" target="_blank">Instructor Profile</a>|<a href="https://suchat-subho.github.io/course/" target="_blank">All Courses</a>|<a href="https://suchat-subho.github.io/course/timetable/" target="_blank">Time Table</a>|</div><div class="container" id="notes-container"></div> <div class="sidebar"><ul id="sidenav"></ul></div>'
         }        
         //document.getElementById('loading-message').style.display = 'none';
     </script>
