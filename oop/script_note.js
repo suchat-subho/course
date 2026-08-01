@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 throw new Error('Unable to access JSON');
             }
+            document.getElementById('loading').style.display = 'none';
             return response.json();
         })
         .then(data => {
