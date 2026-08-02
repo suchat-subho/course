@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Annotate Images</title>
+
+<link rel="stylesheet"
+      href="css/style.css">
+
+<link rel="stylesheet"
+      href="css/toolbar.css">
+
+</head>
+
+<body>
+
+<header>
+
+<div>
+
+<h2>ClassCount</h2>
+
+</div>
+
+<div>
+
+<button id="previousBtn">◀ Previous</button>
+
+<button id="nextBtn">Next ▶</button>
+
+<button id="saveBtn">💾 Save</button>
+
+<button id="exportBtn">Export</button>
+
+</div>
+
+</header>
+
+<div id="workspace">
+
+    <aside id="sidebar">
+
+        <h3>Images</h3>
+
+        <ul id="imageList"></ul>
+
+    </aside>
+
+    <main id="canvasArea">
+
+        <div id="imageInfo">
+
+            <span id="filename"></span>
+
+            <span id="className"></span>
+
+            <span id="date"></span>
+
+            <span id="count"></span>
+
+        </div>
+
+        <canvas id="annotationCanvas"></canvas>
+
+    </main>
+
+</div>
+
+<script type="module" src="js/app.js"></script>
+
+</body>
+
+</html>

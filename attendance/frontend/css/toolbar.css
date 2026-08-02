@@ -1,0 +1,113 @@
+/* ==========================================
+   Toolbar
+========================================== */
+
+header div{
+
+    display:flex;
+
+    gap:10px;
+
+    align-items:center;
+
+}
+
+.toolbar{
+
+    display:flex;
+
+    gap:8px;
+
+    padding:10px;
+
+    background:white;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+.tool{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:6px;
+
+    border:1px solid #ddd;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    background:white;
+
+    transition:.2s;
+
+}
+
+.tool:hover{
+
+    background:#eef5ff;
+
+}
+
+.tool.active{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+#imageList li{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.badge{
+
+    padding:3px 8px;
+
+    border-radius:5px;
+
+    font-size:12px;
+
+    background:#ddd;
+
+}
+
+.badge.pending{
+
+    background:#fff4cc;
+
+}
+
+.badge.done{
+
+    background:#d1fadf;
+
+}
+
+.badge.review{
+
+    background:#ffd5d5;
+
+}
+
+#count{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+}
