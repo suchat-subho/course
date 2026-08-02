@@ -242,13 +242,15 @@ li:hover{
 
 }
 
-canvas{
+#annotationCanvas{
 
-    flex:1;
+    width:100%;
 
-    background:#888;
+    height:100%;
 
     display:block;
+
+    background:#555;
 
 }
 
