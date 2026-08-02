@@ -33,11 +33,19 @@ export default class CanvasManager {
     }
 
     async load(url) {
+    this.image = await ImageLoader.load(url);
+    this.fit();
+    }
+    fit() {
 
-        this.image = await ImageLoader.load(url);
+        if (!this.image)
+            return;
 
         this.viewport.fit(this.image);
 
         this.renderer.draw(this.image);
+
     }
 }
+
+
