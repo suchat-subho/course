@@ -2,89 +2,240 @@
  * app.js
  ******************************************************************************/
 
+import * as Canvas from "./canvas.js";
+import * as Sidebar from "./sidebar.js";
+import * as Annotation from "./annotations.js";
+import * as Keyboard from "./keyboard.js";
 import * as API from "./api.js";
-import { state } from "./state.js";
-import { renderSidebar } from "./ui/sidebar.js";
-import CanvasManager from "./canvas/CanvasManager.js";
 
-let canvasManager;
+const imageInput =
+    document.getElementById("imageInput");
 
-window.addEventListener("DOMContentLoaded", initialize);
+const canvas =
+    document.getElementById("annotationCanvas");
 
-async function initialize() {
-    try {
-        await API.initialize();
+/******************************************************************************
+ * Initialize
+ ******************************************************************************/
 
-        canvasManager = new CanvasManager(
-            document.getElementById("annotationCanvas")
+window.addEventListener(
+    "DOMContentLoaded",
+    initialize
+);
+
+function initialize(){
+
+    Canvas.initialize(canvas);
+
+    initializeButtons();
+
+    initializeKeyboard();
+
+}
+
+/******************************************************************************
+ * Toolbar
+ ******************************************************************************/
+
+function initializeButtons(){
+
+    document
+        .getElementById("openBtn")
+        .onclick=()=>imageInput.click();
+
+    imageInput.onchange=openImages;
+
+    document
+        .getElementById("fitBtn")
+        .onclick=()=>Canvas.fit();
+
+    document
+        .getElementById("nextBtn")
+        .onclick=Sidebar.next;
+
+    document
+        .getElementById("prevBtn")
+        .onclick=Sidebar.previous;
+
+    document
+        .getElementById("saveBtn")
+        .onclick=saveCurrent;
+
+}
+
+/******************************************************************************
+ * Keyboard
+ ******************************************************************************/
+
+function initializeKeyboard(){
+
+    Keyboard.initialize({
+
+        save:saveCurrent,
+
+        undo:()=>{
+
+            Annotation.undo();
+            redraw();
+
+        },
+
+        redo:()=>{
+
+            Annotation.redo();
+            redraw();
+
+        },
+
+        delete:()=>{
+
+            Annotation.removeSelected();
+            redraw();
+
+        },
+
+        next:Sidebar.next,
+
+        previous:Sidebar.previous,
+
+        fit:Canvas.fit,
+
+        cancel(){}
+
+    });
+
+}
+
+/******************************************************************************
+ * Open Images
+ ******************************************************************************/
+
+async function openImages(){
+
+    const files =
+        await API.openImages(
+            imageInput.files
         );
 
-        bindEvents();
+    Sidebar.load(files);
 
-        renderSidebar(selectImage);
+}
 
-        if (state.images.length > 0) {
-            await selectImage(0);
-        }
+/******************************************************************************
+ * Sidebar Event
+ ******************************************************************************/
 
-    } catch (err) {
-        console.error(err);
-        alert("Failed to initialize the application.");
+document.addEventListener(
+    "imagechange",
+    async e=>{
+
+        const img =
+            await API.loadImage(
+                e.detail
+            );
+
+        Canvas.loadImage(img);
+
+        Annotation.load([]);
+
+        redraw();
+
     }
-}
+);
 
-function bindEvents() {
+/******************************************************************************
+ * Mouse Events
+ ******************************************************************************/
 
-    document.getElementById("fitBtn")
-        ?.addEventListener("click", () => canvasManager.fit());
+let drawing=false;
+let start={};
 
-    document.getElementById("previousBtn")
-        ?.addEventListener("click", previousImage);
+canvas.addEventListener("mousedown",e=>{
 
-    document.getElementById("nextBtn")
-        ?.addEventListener("click", nextImage);
+    const p=
+        Canvas.screenToImage(
+            e.offsetX,
+            e.offsetY
+        );
 
-    document.getElementById("saveBtn")
-        ?.addEventListener("click", saveAnnotations);
-}
+    drawing=true;
 
-async function selectImage(index) {
+    start=p;
 
-    if (index < 0 || index >= state.images.length)
+});
+
+canvas.addEventListener("mouseup",e=>{
+
+    if(!drawing)
         return;
 
-    state.currentIndex = index;
+    drawing=false;
 
-    renderSidebar(selectImage);
+    const end=
+        Canvas.screenToImage(
+            e.offsetX,
+            e.offsetY
+        );
 
-    const image = state.images[index];
+    Annotation.add({
 
-    updateImageInfo(image);
+        x:start.x,
 
-    await canvasManager.load(
-        API.getImageURL(image.filename)
+        y:start.y,
+
+        w:end.x-start.x,
+
+        h:end.y-start.y,
+
+        class:0
+
+    });
+
+    redraw();
+
+});
+
+/******************************************************************************
+ * Redraw
+ ******************************************************************************/
+
+function redraw(){
+
+    Canvas.draw(ctx=>{
+
+        Annotation.draw(ctx);
+
+    });
+
+}
+
+/******************************************************************************
+ * Save
+ ******************************************************************************/
+
+function saveCurrent(){
+
+    const img=Canvas.image();
+
+    if(!img)
+        return;
+
+    const name=
+        img.src
+        .split("/")
+        .pop()
+        .replace(/\.[^.]+$/,".txt");
+
+    API.saveLabel(
+
+        name,
+
+        Annotation.all(),
+
+        img.width,
+
+        img.height
+
     );
-}
 
-function updateImageInfo(image) {
-
-    document.getElementById("imageInfo").textContent =
-        `${image.filename} | ${image.class} | ${image.date} | Students: ${image.count} | ${image.status}`;
-}
-
-function previousImage() {
-
-    if (state.currentIndex > 0)
-        selectImage(state.currentIndex - 1);
-}
-
-function nextImage() {
-
-    if (state.currentIndex < state.images.length - 1)
-        selectImage(state.currentIndex + 1);
-}
-
-function saveAnnotations() {
-
-    console.log("Save annotations (not implemented yet)");
 }

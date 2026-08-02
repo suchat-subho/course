@@ -1,117 +1,94 @@
 /******************************************************************************
  * api.js
- *
- * Handles loading of:
- *  - manifest.json
- *  - progress.json
- *
- * Provides helper functions for all pages.
  ******************************************************************************/
-import { state } from "./state.js";
-const DATASET = "dataset/RawPicture";
 
-const MANIFEST_FILE = `${DATASET}/manifest.json`;
-const PROGRESS_FILE = `${DATASET}/progress.json`;
+import * as Utils from "./utils.js";
+import * as YOLO from "./yolo.js";
 
-let manifest = [];
-let progress = {};
+const state = {
 
-async function loadJSON(url)
-{
-    const response = await fetch(url);
+    images: [],
+    labels: new Map()
 
-    if (!response.ok)
-    {
-        throw new Error(`Unable to load ${url}`);
-    }
+};
 
-    return await response.json();
+/******************************************************************************
+ * Open Images
+ ******************************************************************************/
+
+export async function openImages(files){
+
+    state.images = [...files];
+
+    return state.images;
+
 }
 
-export async function initialize()
-{
-    const manifestData = await loadJSON(MANIFEST_FILE);
-    const progressData = await loadJSON(PROGRESS_FILE);
+/******************************************************************************
+ * Load Image
+ ******************************************************************************/
 
-    manifest = manifestData.images;
-    progress = progressData;
+export async function loadImage(file){
 
-    state.manifest = manifest;
-    state.progress = progress;
-    state.images = getMergedData();
-}
-export function getImages()
-{
-    return manifest;
+    return await Utils.loadImage(file);
+
 }
 
-export function getProgress()
-{
-    return progress;
-}
+/******************************************************************************
+ * Load Label
+ ******************************************************************************/
 
-export function getImage(index)
-{
-    return manifest[index];
-}
+export async function loadLabel(file,width,height){
 
-export function getImageCount()
-{
-    return manifest.length;
-}
+    const text = await Utils.readFile(file);
 
-export function getImageURL(filename)
-{
-    return `${DATASET}/${filename}`;
-}
-
-export function getStatus(filename)
-{
-    return progress[filename] || null;
-}
-
-export function getMergedData()
-{
-    return manifest.map(image => {
-
-        return {
-
-            ...image,
-
-            ...(progress[image.filename] || {})
-
-        };
-
-    });
-}
-
-export function getPendingImages()
-{
-    return getMergedData().filter(
-        item => item.status === "Pending"
+    return YOLO.parse(
+        text,
+        width,
+        height
     );
+
 }
 
-export function getCompletedImages()
-{
-    return getMergedData().filter(
-        item => item.status === "Completed"
+/******************************************************************************
+ * Save Label
+ ******************************************************************************/
+
+export function saveLabel(fileName,boxes,w,h){
+
+    const txt = YOLO.stringify(
+        boxes,
+        w,
+        h
     );
-}
 
-export function getClasses()
-{
-    return [...new Set(manifest.map(i => i.class))];
-}
-
-export function getDates()
-{
-    return [...new Set(manifest.map(i => i.date))];
-}
-
-export function findImage(filename)
-{
-    return manifest.find(
-        image => image.filename === filename
+    Utils.download(
+        fileName,
+        txt
     );
+
+}
+
+/******************************************************************************
+ * Image Lookup
+ ******************************************************************************/
+
+export function imageByName(name){
+
+    return state.images.find(
+        f=>f.name===name
+    );
+
+}
+
+/******************************************************************************
+ * Future Cloud Upload
+ ******************************************************************************/
+
+export async function uploadAnnotation(){
+
+    console.log(
+        "Google Apps Script upload coming later."
+    );
+
 }

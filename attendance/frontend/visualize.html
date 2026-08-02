@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>YOLO Annotator</title>
+<title>YOLO Visualizer</title>
 
 <link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="css/style.css">
@@ -19,24 +19,34 @@
 <header id="topbar">
 
 <div class="logo">
-YOLO Web Annotator
+YOLO Visualizer
 </div>
 
 <div class="toolbar">
 
-<button id="openBtn">Open Folder</button>
+<button id="openImageBtn">
+Open Images
+</button>
 
-<button id="prevBtn">◀</button>
+<button id="openLabelBtn">
+Open Labels
+</button>
 
-<button id="nextBtn">▶</button>
+<button id="prevBtn">
+◀
+</button>
 
-<button id="fitBtn">Fit</button>
+<button id="nextBtn">
+▶
+</button>
 
-<button id="zoomInBtn">+</button>
+<button id="fitBtn">
+Fit
+</button>
 
-<button id="zoomOutBtn">−</button>
-
-<button id="saveBtn">Save</button>
+<button id="exportBtn">
+Export Preview
+</button>
 
 </div>
 
@@ -46,14 +56,10 @@ YOLO Web Annotator
 
 <aside id="sidebar">
 
-<div class="search">
-
 <input
 id="searchBox"
 type="text"
-placeholder="Search images">
-
-</div>
+placeholder="Search image">
 
 <ul id="imageList"></ul>
 
@@ -64,76 +70,68 @@ placeholder="Search images">
 <div id="imageHeader">
 
 <div id="imageName">
+
 No Image Loaded
+
 </div>
 
-<div id="studentCount">
-Students : 0
+<div id="labelInfo">
+
+Boxes : 0
+
 </div>
 
 </div>
 
 <div id="canvasContainer">
 
-<canvas id="annotationCanvas"></canvas>
+<canvas id="viewerCanvas"></canvas>
 
 </div>
 
 </main>
 
-<aside id="propertyPanel">
+<aside id="infoPanel">
 
-<h3>Selected Box</h3>
+<h3>Image Information</h3>
 
 <table>
 
 <tr>
-<td>ID</td>
-<td id="boxID">-</td>
+<td>Filename</td>
+<td id="infoFilename">-</td>
 </tr>
 
 <tr>
-<td>Class</td>
-<td>
-
-<select id="classSelect">
-
-<option value="0">
-Person
-</option>
-
-</select>
-
-</td>
+<td>Resolution</td>
+<td id="infoResolution">-</td>
 </tr>
 
 <tr>
-<td>X</td>
-<td id="boxX">-</td>
+<td>Objects</td>
+<td id="infoObjects">0</td>
 </tr>
 
 <tr>
-<td>Y</td>
-<td id="boxY">-</td>
-</tr>
-
-<tr>
-<td>Width</td>
-<td id="boxWidth">-</td>
-</tr>
-
-<tr>
-<td>Height</td>
-<td id="boxHeight">-</td>
+<td>Classes</td>
+<td id="infoClasses">Person</td>
 </tr>
 
 </table>
 
-<button id="deleteBtn">
+<h3>Legend</h3>
 
-Delete Box
+<div class="legend">
 
-</button>
+<div class="legendItem">
+
+<div class="legendColor person"></div>
+
+<span>Person</span>
+
+</div>
+
+</div>
 
 </aside>
 
@@ -179,11 +177,11 @@ Zoom
 
 <div>
 
-Mode
+YOLO Labels
 
-<span id="currentMode">
+<span id="labelStatus">
 
-Draw
+Not Loaded
 
 </span>
 
@@ -205,7 +203,7 @@ accept=".txt"
 multiple
 hidden>
 
-<script type="module" src="js/app.js"></script>
+<script type="module" src="js/visualizer.js"></script>
 
 </body>
 </html>
