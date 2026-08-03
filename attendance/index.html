@@ -4,90 +4,121 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Classroom Attendance Verification</title>
+  <link rel="stylesheet" href="styles_note.css">
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-    .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; color: #333; margin-top: 0; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media(max-width: 768px) { .grid { grid-template-columns: 1fr; } }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-    .image-preview { width: 100%; max-height: 400px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; background: #fafafa; }
-    button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    button:hover { background-color: #0056b3; }
-    #statusAlert { margin-top: 15px; padding: 12px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
-    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    /* Custom styling to align attendance elements with styles_note.css */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .image-preview {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: white;
+      margin-top: 10px;
+    }
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      font-family: Arial, sans-serif;
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Classroom Attendance Verification</h2>
-  
-  <div class="grid">
-    <div>
-      <form id="attendanceForm">
-        <div class="form-group">
-          <label for="classDate">Class Date</label>
-          <select id="classDate" required onchange="onDateChange()">
-            <option value="">-- Select Date --</option>
-          </select>
+  <div id="top-links">
+    <a href="#">Attendance Portal</a>
+  </div>
+
+  <div id="content-wrapper">
+    <div class="container">
+
+      <div class="note">
+        <h3>Mark Attendance</h3>
+        <form id="attendanceForm">
+          <div class="form-group">
+            <label for="classDate">Class Date</label>
+            <select id="classDate" required onchange="onDateChange()">
+              <option value="">-- Select Date --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="groupName">Group Name</label>
+            <select id="groupName" required onchange="updatePreview()">
+              <option value="">-- Select Group --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Student Email ID</label>
+            <input type="email" id="email" placeholder="student@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="rollNumber">Roll Number</label>
+            <input type="text" id="rollNumber" placeholder="e.g. 10210345" required>
+          </div>
+
+          <div class="form-group">
+            <label for="serialNumber">Annotated Serial Number</label>
+            <input type="number" id="serialNumber" placeholder="e.g. 14" required>
+          </div>
+
+          <button type="submit" id="submitBtn" class="button" style="width: 100%; cursor: pointer;">Submit Attendance</button>
+        </form>
+
+        <div id="loaderContainer" class="loading-container" style="display: none; margin-top: 15px;">
+          <div class="loader"></div>
+          <div class="loading-message">Submitting attendance record...</div>
         </div>
 
-        <div class="form-group">
-          <label for="groupName">Group Name</label>
-          <select id="groupName" required onchange="updatePreview()">
-            <option value="">-- Select Group --</option>
-          </select>
-        </div>
+        <div id="statusAlert" style="display: none;"></div>
+      </div>
 
-        <div class="form-group">
-          <label for="email">Student Email ID</label>
-          <input type="email" id="email" placeholder="student@example.com" required>
-        </div>
+      <div class="note">
+        <h3>Classroom Image Preview</h3>
+        <p><em>Check your annotated serial number from the classroom preview image below.</em></p>
+        <img id="previewImg" class="image-preview" src="" alt="Select Date and Group to view image." onerror="this.src=''; this.alt='Image not found for the selected Date and Group.';">
+      </div>
 
-        <div class="form-group">
-          <label for="rollNumber">Roll Number</label>
-          <input type="text" id="rollNumber" placeholder="e.g. 10210345" required>
-        </div>
-
-        <div class="form-group">
-          <label for="serialNumber">Annotated Serial Number (from image)</label>
-          <input type="number" id="serialNumber" placeholder="e.g. 14" required>
-        </div>
-
-        <button type="submit" id="submitBtn">Submit Attendance</button>
-      </form>
-    </div>
-
-    <div>
-      <label>Classroom Image Preview</label>
-      <img id="previewImg" class="image-preview" src="" alt="Select Date and Group to view classroom image." onerror="this.src=''; this.alt='Image not found for the selected Date and Group.';">
     </div>
   </div>
 
-  <div id="statusAlert"></div>
-</div>
-
 <script>
-  // Deployed Google Apps Script Web App URL
+  // Google Apps Script Web App URL [cite: 56, 58]
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwqoOye-M2llgR4hso3Z71EkoAwcCiTRo6CPqjVbdjCTo2exHA-bNa4CpkA7ReA5lFUg/exec";
 
-  // GitHub repository details
+  // GitHub repository details [cite: 21, 51]
   const REPO_OWNER = "suchat-subho";
   const REPO_NAME = "course";
   const FOLDER_PATH = "attendance/Dataset/Preview";
 
-  // Store parsed file details: { date: [group1, group2, ...] }
   let availableData = {};
 
-  // Fetch available files from GitHub REST API on page load
+  // Fetch available preview files from GitHub API [cite: 49, 51]
   window.onload = function() {
     const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`;
-    
+    alert(apiUrl);
     fetch(apiUrl)
       .then(res => res.json())
       .then(files => {
@@ -99,8 +130,8 @@
             const parts = fileNameWithoutExt.split('_');
 
             if (parts.length >= 4) {
-              const group = parts.pop(); // e.g. 2C7
-              const date = parts.join('_'); // e.g. 02_08_2026
+              const group = parts.pop();
+              const date = parts.join('_');
 
               if (!availableData[date]) {
                 availableData[date] = [];
@@ -159,19 +190,20 @@
       imgElement.alt = "Loading image...";
     } else {
       imgElement.src = "";
-      imgElement.alt = "Select Date and Group to view classroom image.";
+      imgElement.alt = "Select Date and Group to view image.";
     }
   }
 
-  // Handle Form Submission
+  // Handle Submission [cite: 30, 43]
   document.getElementById('attendanceForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const submitBtn = document.getElementById('submitBtn');
     const alertDiv = document.getElementById('statusAlert');
+    const loaderContainer = document.getElementById('loaderContainer');
     
     submitBtn.disabled = true;
-    submitBtn.innerText = "Submitting...";
+    loaderContainer.style.display = "block";
     alertDiv.style.display = "none";
 
     const payload = {
@@ -190,7 +222,7 @@
     .then(data => {
       alertDiv.style.display = "block";
       if (data.status === "success") {
-        alertDiv.className = "alert-success";
+        alertDiv.className = "green-box"; // Uses .green-box from styles_note.css
         alertDiv.innerText = data.message;
         document.getElementById('attendanceForm').reset();
         document.getElementById('groupName').innerHTML = '<option value="">-- Select Group --</option>';
@@ -208,7 +240,7 @@
     })
     .finally(() => {
       submitBtn.disabled = false;
-      submitBtn.innerText = "Submit Attendance";
+      loaderContainer.style.display = "none";
     });
   });
 </script>
