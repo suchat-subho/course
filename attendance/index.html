@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Classroom Attendance Marking</title>
+  <title>Classroom Attendance Verification</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
@@ -32,12 +32,16 @@
       <form id="attendanceForm">
         <div class="form-group">
           <label for="classDate">Class Date</label>
-          <input type="text" id="classDate" placeholder="e.g. 02_08_2026" required onchange="updatePreview()">
+          <select id="classDate" required onchange="onDateChange()">
+            <option value="">-- Select Date --</option>
+          </select>
         </div>
 
         <div class="form-group">
           <label for="groupName">Group Name</label>
-          <input type="text" id="groupName" placeholder="e.g. 2C7" required onchange="updatePreview()">
+          <select id="groupName" required onchange="updatePreview()">
+            <option value="">-- Select Group --</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -61,7 +65,7 @@
 
     <div>
       <label>Classroom Image Preview</label>
-      <img id="previewImg" class="image-preview" src="" alt="Classroom preview will appear here when Date and Group are provided." onerror="this.src=''; this.alt='Image not found for the specified Date and Group.';">
+      <img id="previewImg" class="image-preview" src="" alt="Select Date and Group to view classroom image." onerror="this.src=''; this.alt='Image not found for the selected Date and Group.';">
     </div>
   </div>
 
@@ -69,20 +73,97 @@
 </div>
 
 <script>
-  // Paste your Web App URL from Google Apps Script here
+  // Deployed Google Apps Script Web App URL
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwqoOye-M2llgR4hso3Z71EkoAwcCiTRo6CPqjVbdjCTo2exHA-bNa4CpkA7ReA5lFUg/exec";
 
+  // GitHub repository details
+  const REPO_OWNER = "suchat-subho";
+  const REPO_NAME = "course";
+  const FOLDER_PATH = "attendance/Dataset/Preview";
+
+  // Store parsed file details: { date: [group1, group2, ...] }
+  let availableData = {};
+
+  // Fetch available files from GitHub REST API on page load
+  window.onload = function() {
+    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`;
+    
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(files => {
+        if (!Array.isArray(files)) return;
+
+        files.forEach(file => {
+          if (file.name.endsWith('.jpg') || file.name.endsWith('.png') || file.name.endsWith('.jpeg')) {
+            const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+            const parts = fileNameWithoutExt.split('_');
+
+            if (parts.length >= 4) {
+              const group = parts.pop(); // e.g. 2C7
+              const date = parts.join('_'); // e.g. 02_08_2026
+
+              if (!availableData[date]) {
+                availableData[date] = [];
+              }
+              if (!availableData[date].includes(group)) {
+                availableData[date].push(group);
+              }
+            }
+          }
+        });
+
+        populateDateDropdown();
+      })
+      .catch(err => {
+        console.error("Error fetching preview folder files:", err);
+      });
+  };
+
+  function populateDateDropdown() {
+    const dateSelect = document.getElementById('classDate');
+    dateSelect.innerHTML = '<option value="">-- Select Date --</option>';
+
+    Object.keys(availableData).forEach(date => {
+      const opt = document.createElement('option');
+      opt.value = date;
+      opt.textContent = date;
+      dateSelect.appendChild(opt);
+    });
+  }
+
+  function onDateChange() {
+    const selectedDate = document.getElementById('classDate').value;
+    const groupSelect = document.getElementById('groupName');
+    
+    groupSelect.innerHTML = '<option value="">-- Select Group --</option>';
+
+    if (selectedDate && availableData[selectedDate]) {
+      availableData[selectedDate].forEach(group => {
+        const opt = document.createElement('option');
+        opt.value = group;
+        opt.textContent = group;
+        groupSelect.appendChild(opt);
+      });
+    }
+
+    updatePreview();
+  }
+
   function updatePreview() {
-    const date = document.getElementById('classDate').value.trim();
-    const group = document.getElementById('groupName').value.trim();
+    const date = document.getElementById('classDate').value;
+    const group = document.getElementById('groupName').value;
     const imgElement = document.getElementById('previewImg');
 
     if (date && group) {
       imgElement.src = `Dataset/Preview/${date}_${group}.jpg`;
       imgElement.alt = "Loading image...";
+    } else {
+      imgElement.src = "";
+      imgElement.alt = "Select Date and Group to view classroom image.";
     }
   }
 
+  // Handle Form Submission
   document.getElementById('attendanceForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -94,8 +175,8 @@
     alertDiv.style.display = "none";
 
     const payload = {
-      date: document.getElementById('classDate').value.trim(),
-      group: document.getElementById('groupName').value.trim(),
+      date: document.getElementById('classDate').value,
+      group: document.getElementById('groupName').value,
       email: document.getElementById('email').value.trim(),
       rollNumber: document.getElementById('rollNumber').value.trim(),
       serialNumber: document.getElementById('serialNumber').value.trim()
@@ -112,6 +193,8 @@
         alertDiv.className = "alert-success";
         alertDiv.innerText = data.message;
         document.getElementById('attendanceForm').reset();
+        document.getElementById('groupName').innerHTML = '<option value="">-- Select Group --</option>';
+        document.getElementById('previewImg').src = "";
       } else {
         alertDiv.className = "alert-error";
         alertDiv.innerText = data.message;
