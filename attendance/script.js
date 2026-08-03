@@ -11,8 +11,49 @@ const attendanceForm = document.getElementById('attendanceForm');
 const submitBtn = document.getElementById('submitBtn');
 const statusMessage = document.getElementById('statusMessage');
 
+// Loading Modal Elements
+const loadingModal = document.getElementById('loadingModal');
+const loadingText = document.getElementById('loadingText');
+
+// Image Lightbox Elements
+const imageModal = document.getElementById('imageModal');
+const fullscreenImg = document.getElementById('fullscreenImg');
+const closeImageModal = document.getElementById('closeImageModal');
+
+// Help Box Elements
+const helpToggleBtn = document.getElementById('helpToggleBtn');
+const helpBox = document.getElementById('helpBox');
+const closeHelpBtn = document.getElementById('closeHelpBtn');
+
+// Toggle Help Box
+helpToggleBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  helpBox.classList.toggle('active');
+});
+
+closeHelpBtn.addEventListener('click', () => {
+  helpBox.classList.remove('active');
+});
+
+// Close Help Box when clicking outside
+document.addEventListener('click', (e) => {
+  if (!helpBox.contains(e.target) && e.target !== helpToggleBtn) {
+    helpBox.classList.remove('active');
+  }
+});
+
+function showModal(text = "Processing request...") {
+  loadingText.textContent = text;
+  loadingModal.classList.add('active');
+}
+
+function hideModal() {
+  loadingModal.classList.remove('active');
+}
+
 // Fetch Config Data on Page Load
 async function loadConfig() {
+  showModal("Please wait. Loading options...");
   try {
     const response = await fetch(SCRIPT_URL);
     const json = await response.json();
@@ -21,10 +62,12 @@ async function loadConfig() {
       configData = json.data;
       populateDates();
     } else {
-      showStatus("Failed to load options from server.", "error");
+      showStatus("Failed to load options from server. Try later...", "error");
     }
   } catch (err) {
     showStatus("Network error while loading configuration.", "error");
+  } finally {
+    hideModal();
   }
 }
 
@@ -91,12 +134,39 @@ function resetPreview() {
   previewPlaceholder.style.display = 'block';
 }
 
+// Fullscreen Image Handlers
+previewImg.addEventListener('click', () => {
+  if (previewImg.src) {
+    fullscreenImg.src = previewImg.src;
+    imageModal.classList.add('active');
+  }
+});
+
+function closeFullscreen() {
+  imageModal.classList.remove('active');
+}
+
+closeImageModal.addEventListener('click', closeFullscreen);
+
+imageModal.addEventListener('click', (e) => {
+  if (e.target === imageModal) {
+    closeFullscreen();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (imageModal.classList.contains('active')) closeFullscreen();
+    if (helpBox.classList.contains('active')) helpBox.classList.remove('active');
+  }
+});
+
 // Handle Form Submission
 attendanceForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting...';
   hideStatus();
+  showModal("Submitting attendance...");
 
   const payload = {
     date: dateSelect.value,
@@ -107,7 +177,6 @@ attendanceForm.addEventListener('submit', async (e) => {
   };
 
   try {
-    // Send data as raw text to avoid pre-flight CORS issues with Google Apps Script
     const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -127,8 +196,8 @@ attendanceForm.addEventListener('submit', async (e) => {
   } catch (err) {
     showStatus('❌ Submission failed. Please try again.', 'error');
   } finally {
+    hideModal();
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit Attendance';
   }
 });
 
