@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Attendance Marking</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #333; margin-top: 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media(max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .image-preview { width: 100%; max-height: 400px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; background: #fafafa; }
+    button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    button:hover { background-color: #0056b3; }
+    #statusAlert { margin-top: 15px; padding: 12px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
+    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Classroom Attendance Verification</h2>
+  
+  <div class="grid">
+    <div>
+      <form id="attendanceForm">
+        <div class="form-group">
+          <label for="classDate">Class Date</label>
+          <input type="text" id="classDate" placeholder="e.g. 02_08_2026" required onchange="updatePreview()">
+        </div>
+
+        <div class="form-group">
+          <label for="groupName">Group Name</label>
+          <input type="text" id="groupName" placeholder="e.g. 2C7" required onchange="updatePreview()">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Student Email ID</label>
+          <input type="email" id="email" placeholder="student@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="rollNumber">Roll Number</label>
+          <input type="text" id="rollNumber" placeholder="e.g. 10210345" required>
+        </div>
+
+        <div class="form-group">
+          <label for="serialNumber">Annotated Serial Number (from image)</label>
+          <input type="number" id="serialNumber" placeholder="e.g. 14" required>
+        </div>
+
+        <button type="submit" id="submitBtn">Submit Attendance</button>
+      </form>
+    </div>
+
+    <div>
+      <label>Classroom Image Preview</label>
+      <img id="previewImg" class="image-preview" src="" alt="Classroom preview will appear here when Date and Group are provided." onerror="this.src=''; this.alt='Image not found for the specified Date and Group.';">
+    </div>
+  </div>
+
+  <div id="statusAlert"></div>
+</div>
+
+<script>
+  // Paste your Web App URL from Google Apps Script here
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwqoOye-M2llgR4hso3Z71EkoAwcCiTRo6CPqjVbdjCTo2exHA-bNa4CpkA7ReA5lFUg/exec";
+
+  function updatePreview() {
+    const date = document.getElementById('classDate').value.trim();
+    const group = document.getElementById('groupName').value.trim();
+    const imgElement = document.getElementById('previewImg');
+
+    if (date && group) {
+      imgElement.src = `Dataset/Preview/${date}_${group}.jpg`;
+      imgElement.alt = "Loading image...";
+    }
+  }
+
+  document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const alertDiv = document.getElementById('statusAlert');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Submitting...";
+    alertDiv.style.display = "none";
+
+    const payload = {
+      date: document.getElementById('classDate').value.trim(),
+      group: document.getElementById('groupName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      rollNumber: document.getElementById('rollNumber').value.trim(),
+      serialNumber: document.getElementById('serialNumber').value.trim()
+    };
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      alertDiv.style.display = "block";
+      if (data.status === "success") {
+        alertDiv.className = "alert-success";
+        alertDiv.innerText = data.message;
+        document.getElementById('attendanceForm').reset();
+      } else {
+        alertDiv.className = "alert-error";
+        alertDiv.innerText = data.message;
+      }
+    })
+    .catch(err => {
+      alertDiv.style.display = "block";
+      alertDiv.className = "alert-error";
+      alertDiv.innerText = "Error connecting to server. Please try again.";
+      console.error(err);
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Submit Attendance";
+    });
+  });
+</script>
+
+</body>
+</html>
