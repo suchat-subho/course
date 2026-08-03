@@ -27,12 +27,15 @@ drawing = False
 ix, iy = -1, -1
 temp_image = None
 current_image = None
-base_annotated_image = None  # Preserves base layer with green existing boxes
-new_yolo_boxes = []  # Holds new annotations to write to JSON
+raw_image = None
+
+# Separate tracking lists for existing and new annotations
+existing_boxes = []  # Drawn in GREEN
+new_yolo_boxes = []  # Drawn in RED
 
 
 def load_existing_annotations(json_path):
-    """Loads existing annotations from JSON file."""
+    """Loads existing annotations from JSON file into normalized YOLO strings."""
     if not os.path.exists(json_path):
         print(f"⚠️ Notice: '{json_path}' not found. A new file will be created on save.")
         return []
@@ -43,30 +46,66 @@ def load_existing_annotations(json_path):
     if isinstance(data, dict):
         data = data.get("annotations", data.get("labels", []))
 
-    return data
+    normalized = []
+    for item in data:
+        if isinstance(item, str):
+            parts = item.strip().split()
+            if len(parts) >= 5:
+                normalized.append(" ".join(parts[:5]))
+        elif isinstance(item, dict):
+            bbox = item.get("bbox", item.get("box", []))
+            if len(bbox) == 4:
+                cls_id = item.get("class", 0)
+                normalized.append(
+                    f"{cls_id} {bbox[0]:.4f} {bbox[1]:.4f} {bbox[2]:.4f} {bbox[3]:.4f}"
+                )
+
+    return normalized
+
+
+def yolo_to_pixels(box_str, img_w, img_h):
+    """Converts normalized YOLO string into pixel coordinates [x1, y1, x2, y2]."""
+    parts = box_str.strip().split()
+    _, x_c, y_c, w, h = map(float, parts[:5])
+
+    x1 = int((x_c - w / 2.0) * img_w)
+    y1 = int((y_c - h / 2.0) * img_h)
+    x2 = int((x_c + w / 2.0) * img_w)
+    y2 = int((y_c + h / 2.0) * img_h)
+
+    return x1, y1, x2, y2
 
 
 def redraw_canvas():
-    """Redraws all newly queued boxes on top of the base image."""
-    global current_image, temp_image, base_annotated_image, new_yolo_boxes
+    """Renders existing (GREEN) and newly added (RED) bounding boxes."""
+    global current_image, temp_image, raw_image, existing_boxes, new_yolo_boxes
 
-    current_image = base_annotated_image.copy()
+    current_image = raw_image.copy()
     img_h, img_w, _ = current_image.shape
 
+    # 1. Render Existing Annotations (GREEN)
+    for idx, box_str in enumerate(existing_boxes, start=1):
+        x1, y1, x2, y2 = yolo_to_pixels(box_str, img_w, img_h)
+        cv2.rectangle(current_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(
+            current_image,
+            f"#{idx}",
+            (x1, max(y1 - 5, 12)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.4,
+            (0, 255, 0),
+            1,
+            cv2.LINE_AA,
+        )
+
+    # 2. Render Newly Added Annotations (RED)
     for idx, box_str in enumerate(new_yolo_boxes, start=1):
-        parts = box_str.strip().split()
-        _, x_center, y_center, width, height = map(float, parts[:5])
-
-        x1 = int((x_center - width / 2) * img_w)
-        y1 = int((y_center - height / 2) * img_h)
-        x2 = int((x_center + width / 2) * img_w)
-        y2 = int((y_center + height / 2) * img_h)
-
+        x1, y1, x2, y2 = yolo_to_pixels(box_str, img_w, img_h)
         cv2.rectangle(current_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
         cv2.putText(
             current_image,
             f"NEW #{idx}",
-            (x1, max(y1 - 5, 15)),
+            (x1, max(y1 - 5, 12)),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.4,
             (0, 0, 255),
@@ -77,145 +116,136 @@ def redraw_canvas():
     temp_image = current_image.copy()
 
 
+def handle_right_click_delete(click_x, click_y):
+    """Deletes a bounding box if right-clicked inside its bounds."""
+    global existing_boxes, new_yolo_boxes, current_image
+
+    img_h, img_w, _ = current_image.shape
+
+    # 1. Check NEW boxes (RED) in reverse order
+    for idx in range(len(new_yolo_boxes) - 1, -1, -1):
+        x1, y1, x2, y2 = yolo_to_pixels(new_yolo_boxes[idx], img_w, img_h)
+        if x1 <= click_x <= x2 and y1 <= click_y <= y2:
+            removed = new_yolo_boxes.pop(idx)
+            print(f"🗑️ Deleted New Box #{idx + 1}: {removed}")
+            redraw_canvas()
+            return
+
+    # 2. Check EXISTING boxes (GREEN) in reverse order
+    for idx in range(len(existing_boxes) - 1, -1, -1):
+        x1, y1, x2, y2 = yolo_to_pixels(existing_boxes[idx], img_w, img_h)
+        if x1 <= click_x <= x2 and y1 <= click_y <= y2:
+            removed = existing_boxes.pop(idx)
+            print(f"🗑️ Deleted Existing Box #{idx + 1}: {removed}")
+            redraw_canvas()
+            return
+
+
 def draw_mouse_bbox(event, x, y, flags, param):
-    """Mouse callback to handle click-and-drag drawing."""
+    """Mouse callback to handle click-and-drag drawing and right-click deletion."""
     global ix, iy, drawing, temp_image, current_image, new_yolo_boxes
 
     img_h, img_w, _ = current_image.shape
 
+    # 🟢 Left Click: Start Box
     if event == cv2.EVENT_LBUTTONDOWN:
         drawing = True
         ix, iy = x, y
 
+    # 🟡 Drag: Draw Preview Box
     elif event == cv2.EVENT_MOUSEMOVE:
         if drawing:
             temp_image = current_image.copy()
             cv2.rectangle(temp_image, (ix, iy), (x, y), (0, 0, 255), 2)
 
+    # 🔴 Left Release: Commit Box
     elif event == cv2.EVENT_LBUTTONUP:
         if drawing:
             drawing = False
             x1, y1 = min(ix, x), min(iy, y)
             x2, y2 = max(ix, x), max(iy, y)
 
-            # Ignore tiny accidental clicks (less than 5 pixels)
             if (x2 - x1) > 5 and (y2 - y1) > 5:
-                # Convert pixel coordinates to normalized YOLO format
                 width = (x2 - x1) / img_w
                 height = (y2 - y1) / img_h
                 x_center = (x1 + (x2 - x1) / 2) / img_w
                 y_center = (y1 + (y2 - y1) / 2) / img_h
 
-                # Format YOLO string: "class_id x_center y_center width height"
                 yolo_str = f"0 {x_center:.4f} {y_center:.4f} {width:.4f} {height:.4f}"
-
-                # Store in list to be written into JSON upon saving
                 new_yolo_boxes.append(yolo_str)
-                print(f"➕ Queued New Box #{len(new_yolo_boxes)}: {yolo_str}")
+                print(f"➕ Added Box #{len(new_yolo_boxes)}: {yolo_str}")
 
                 redraw_canvas()
 
+    # 🔴 Right Click: Delete Box under cursor
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        handle_right_click_delete(x, y)
+
 
 def run_interactive_annotator():
-    global current_image, temp_image, base_annotated_image, new_yolo_boxes
+    global current_image, temp_image, raw_image, existing_boxes, new_yolo_boxes
 
-    # 1. Load Raw Image
-    image = cv2.imread(FULL_IMAGE_PATH)
-    if image is None:
+    # 1. Read Input Image
+    raw_image = cv2.imread(FULL_IMAGE_PATH)
+    if raw_image is None:
         print(f"❌ Error: Could not open image at '{FULL_IMAGE_PATH}'")
         return
 
-    img_h, img_w, _ = image.shape
-    base_annotated_image = image.copy()
+    # 2. Load Existing Annotations
+    existing_boxes = load_existing_annotations(FULL_ANNOTATION_PATH)
+    new_yolo_boxes = []
 
-    # 2. Load existing JSON annotations & render them in GREEN
-    existing_annotations = load_existing_annotations(FULL_ANNOTATION_PATH)
-    for idx, item in enumerate(existing_annotations, start=1):
-        if isinstance(item, str):
-            parts = item.strip().split()
-            if len(parts) < 5:
-                continue
-            _, x_center, y_center, width, height = map(float, parts[:5])
-        elif isinstance(item, dict):
-            bbox = item.get("bbox", [])
-            if len(bbox) == 4:
-                x_center, y_center, width, height = map(float, bbox)
-            else:
-                continue
-        else:
-            continue
+    redraw_canvas()
 
-        x1 = int((x_center - width / 2) * img_w)
-        y1 = int((y_center - height / 2) * img_h)
-        x2 = int((x_center + width / 2) * img_w)
-        y2 = int((y_center + height / 2) * img_h)
-
-        cv2.rectangle(base_annotated_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(
-            base_annotated_image,
-            f"#{idx}",
-            (x1, max(y1 - 5, 10)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.4,
-            (0, 255, 0),
-            1,
-            cv2.LINE_AA,
-        )
-
-    current_image = base_annotated_image.copy()
-    temp_image = current_image.copy()
-
-    # 3. Setup OpenCV Window & Controls
-    window_name = "Interactive Annotator | 'S': Save | 'Z': Undo | 'R': Reset | 'Q': Quit"
+    # 3. GUI Controls Setup
+    window_name = f"Annotator | 'S': Save | Right-Click: Delete | 'Z': Undo | 'Q': Quit"
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
     cv2.setMouseCallback(window_name, draw_mouse_bbox)
 
-    print("\n--- 🖱️ INSTRUCTIONS ---")
-    print("1. Click & drag mouse over missing student faces.")
-    print("2. Press 'Z' to Undo last drawn box.")
-    print("3. Press 'R' to Reset all newly added boxes.")
-    print("4. Press 'S' to Save & Append to JSON file.")
-    print("5. Press 'Q' or 'ESC' to Exit without saving.\n")
+    print("\n" + "=" * 50)
+    print(" 🖱️ INTERACTIVE ANNOTATOR CONTROLS")
+    print("=" * 50)
+    print("• Left-Click & Drag : Draw a new box (RED)")
+    print("• Right-Click Box   : Delete box under cursor")
+    print("• Press 'Z'         : Undo last drawn box")
+    print("• Press 'R'         : Reset newly added boxes")
+    print("• Press 'S'         : Save changes to JSON file")
+    print("• Press 'Q' or ESC  : Exit without saving\n")
 
     while True:
         cv2.imshow(window_name, temp_image)
         key = cv2.waitKey(20) & 0xFF
 
-        # Press 'S' to Save
-        if key == ord("s") or key == ord("S"):
-            if new_yolo_boxes:
-                updated_annotations = existing_annotations + new_yolo_boxes
+        # Save Changes ('S')
+        if key in (ord("s"), ord("S")):
+            all_annotations = existing_boxes + new_yolo_boxes
 
-                os.makedirs(os.path.dirname(FULL_ANNOTATION_PATH), exist_ok=True)
+            os.makedirs(os.path.dirname(FULL_ANNOTATION_PATH), exist_ok=True)
+            with open(FULL_ANNOTATION_PATH, "w") as f:
+                json.dump(all_annotations, f, indent=2)
 
-                with open(FULL_ANNOTATION_PATH, "w") as f:
-                    json.dump(updated_annotations, f, indent=2)
-
-                print(f"\n✅ SUCCESS! Updated '{FULL_ANNOTATION_PATH}'")
-                print(f"   ├─ Added {len(new_yolo_boxes)} new box(es)")
-                print(f"   └─ Total annotations in JSON: {len(updated_annotations)}")
-            else:
-                print("\n⚠️ No new boxes added. JSON file remains unchanged.")
+            print(f"\n✅ SUCCESS! Updated file: '{FULL_ANNOTATION_PATH}'")
+            print(f"   └─ Total Saved Annotations: {len(all_annotations)}")
             break
 
-        # Press 'Z' to Undo last drawn box
-        elif key == ord("z") or key == ord("Z"):
+        # Undo Last Addition ('Z')
+        elif key in (ord("z"), ord("Z")):
             if new_yolo_boxes:
                 removed = new_yolo_boxes.pop()
                 print(f"↩️ Undid box: {removed}")
                 redraw_canvas()
             else:
-                print("⚠️ Nothing to undo.")
+                print("⚠️ No new boxes to undo.")
 
-        # Press 'R' to Reset all unsaved boxes
-        elif key == ord("r") or key == ord("R"):
+        # Reset Unsaved New Boxes ('R')
+        elif key in (ord("r"), ord("R")):
             if new_yolo_boxes:
                 new_yolo_boxes.clear()
-                print("🔄 Reset all unsaved boxes.")
+                print("🔄 Reset all unsaved new boxes.")
                 redraw_canvas()
 
-        # Press 'Q' or ESC to Quit without saving
-        elif key == ord("q") or key == ord("Q") or key == 27:
+        # Exit Without Saving ('Q' or ESC)
+        elif key in (ord("q"), ord("Q"), 27):
             print("\n❌ Exited without saving changes.")
             break
 

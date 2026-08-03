@@ -1,6 +1,10 @@
+import argparse
 import os
+import random
+import sys
 
-IMAGE_NAME = "30_07_2026_2C7"
+
+DEFAULT_IMAGE_NAME = "30_07_2026_2C7"
 
 
 # ==========================================
@@ -21,6 +25,19 @@ IMAGE_EXTN = ".jpg"
 IOU_THRESHOLD = 0.45
 ROW_TOLERANCE = 0.08
 
+# ==========================================
+# 📁 FILENAME SELECTION FUNCTIONS
+# ==========================================
+def get_cli_filename():
+    """Parses sys.argv directly for -f or --file flags without breaking imported scripts."""
+    args = sys.argv[1:]
+    for i, arg in enumerate(args):
+        if arg in ("-f", "--file") and i + 1 < len(args):
+            # Strip file extension if user passed one (e.g., -f image.jpg -> image)
+            return os.path.splitext(args[i + 1])[0]
+    return DEFAULT_IMAGE_NAME
+
+IMAGE_NAME = get_cli_filename()
 
 # ==========================================
 # 🛠️ DYNAMIC PATH HELPER FUNCTIONS
