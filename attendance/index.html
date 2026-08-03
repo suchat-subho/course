@@ -41,9 +41,45 @@
       margin: 10px 0;
       font-family: Arial, sans-serif;
     }
+
+    /* Full-Screen Loader Overlay */
+.page-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.page-loader-content {
+  text-align: center;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Hide helper class */
+.page-loader-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
   </style>
 </head>
 <body>
+<div id="pageLoaderModal" class="page-loader-overlay">
+  <div class="page-loader-content">
+    <div class="loader"></div>
+    <p class="loading-message" id="pageLoaderText">Loading class schedules...</p>
+  </div>
+</div>
 
   <div id="top-links">
     <a href="#">Attendance Portal</a>
@@ -105,67 +141,133 @@
   </div>
 
 <script>
-  // Google Apps Script Web App URL [cite: 56, 58]
+  // Google Apps Script Deployed Web App URL
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwqoOye-M2llgR4hso3Z71EkoAwcCiTRo6CPqjVbdjCTo2exHA-bNa4CpkA7ReA5lFUg/exec";
 
-  // GitHub repository details [cite: 21, 51]
+  // GitHub Repository Details
   const REPO_OWNER = "suchat-subho";
   const REPO_NAME = "course";
   const FOLDER_PATH = "attendance/Dataset/Preview";
 
   let availableData = {};
 
-  // Fetch available preview files from GitHub API [cite: 49, 51]
-  window.onload = function() {
-    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`;
-    alert(apiUrl);
-    fetch(apiUrl)
-      .then(res => res.json())
-      .then(files => {
-        if (!Array.isArray(files)) return;
+  // Step 1: Fetch directory contents from GitHub REST API
+  window.addEventListener('DOMContentLoaded', () => {
+    console.log("🚀 [1/5] DOM fully loaded. Starting GitHub API fetch...");
+    fetchGitHubFiles();
+  });
 
-        files.forEach(file => {
-          if (file.name.endsWith('.jpg') || file.name.endsWith('.png') || file.name.endsWith('.jpeg')) {
-            const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
-            const parts = fileNameWithoutExt.split('_');
+function fetchGitHubFiles() {
+  const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`;
+  console.log(`📡 [2/5] Fetching API Endpoint: ${apiUrl}`);
 
-            if (parts.length >= 4) {
-              const group = parts.pop();
-              const date = parts.join('_');
+  const pageLoader = document.getElementById('pageLoaderModal');
+  const loaderText = document.getElementById('pageLoaderText');
 
-              if (!availableData[date]) {
-                availableData[date] = [];
-              }
-              if (!availableData[date].includes(group)) {
-                availableData[date].push(group);
-              }
-            }
+  // 5-second timeout safeguard
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  fetch(apiUrl, { signal: controller.signal })
+  .then(response => {
+    clearTimeout(timeoutId);
+    console.log(`📥 [3/5] GitHub API Response Status: ${response.status} ${response.statusText}`);
+    
+    if (response.status === 404) {
+      throw new Error(`404 Not Found. Path: '${FOLDER_PATH}'`);
+    } else if (response.status === 403) {
+      throw new Error("GitHub API rate limit reached. Please try again later.");
+    } else if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+    
+    return response.json();
+  })
+  .then(files => {
+    console.log("📂 [4/5] Raw Files Received:", files);
+
+    if (!Array.isArray(files)) {
+      throw new Error("Invalid directory response from GitHub.");
+    }
+
+    availableData = {};
+    let matchedCount = 0;
+
+    files.forEach(file => {
+      if (/\.(jpg|jpeg|png)$/i.test(file.name)) {
+        const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+        const parts = fileNameWithoutExt.split('_');
+
+        if (parts.length >= 4) {
+          const group = parts.pop();
+          const date = parts.join('_');
+
+          if (!availableData[date]) {
+            availableData[date] = [];
           }
-        });
+          if (!availableData[date].includes(group)) {
+            availableData[date].push(group);
+          }
+          matchedCount++;
+        }
+      }
+    });
 
-        populateDateDropdown();
-      })
-      .catch(err => {
-        console.error("Error fetching preview folder files:", err);
-      });
-  };
+    console.log(`✅ [5/5] Matched ${matchedCount} file(s). Populating dropdowns...`);
+    populateDateDropdown();
 
+    // Hide loader overlay once everything is populated
+    if (pageLoader) {
+      pageLoader.classList.add('hidden');
+    }
+  })
+  .catch(err => {
+    console.error("💥 ERROR during page init:", err);
+    
+    // Update loader UI to reflect the error instead of spinning endlessly
+    if (loaderText) {
+      const errorMsg = err.name === 'AbortError' 
+        ? "Request timed out. Check network connection or ad-blocker." 
+        : err.message;
+      
+      loaderText.style.color = "red";
+      loaderText.innerText = `Failed to load data: ${errorMsg}`;
+    }
+    
+    // Fallback dropdown text
+    const dateSelect = document.getElementById('classDate');
+    if (dateSelect) {
+      dateSelect.innerHTML = `<option value="">Error loading dates</option>`;
+    }
+  });
+}
   function populateDateDropdown() {
     const dateSelect = document.getElementById('classDate');
     dateSelect.innerHTML = '<option value="">-- Select Date --</option>';
 
-    Object.keys(availableData).forEach(date => {
+    const dates = Object.keys(availableData);
+    
+    if (dates.length === 0) {
+      console.warn("⚠️ No valid date/group image matches found in folder.");
+      dateSelect.innerHTML = '<option value="">No files found in Dataset/Preview/</option>';
+      return;
+    }
+
+    dates.forEach(date => {
       const opt = document.createElement('option');
       opt.value = date;
       opt.textContent = date;
       dateSelect.appendChild(opt);
     });
+
+    console.log("🎯 Date dropdown populated successfully with dates:", dates);
   }
 
   function onDateChange() {
     const selectedDate = document.getElementById('classDate').value;
     const groupSelect = document.getElementById('groupName');
     
+    console.log(`📅 Date selected: '${selectedDate}'`);
     groupSelect.innerHTML = '<option value="">-- Select Group --</option>';
 
     if (selectedDate && availableData[selectedDate]) {
@@ -175,6 +277,7 @@
         opt.textContent = group;
         groupSelect.appendChild(opt);
       });
+      console.log(`👥 Group dropdown updated with groups:`, availableData[selectedDate]);
     }
 
     updatePreview();
@@ -186,7 +289,9 @@
     const imgElement = document.getElementById('previewImg');
 
     if (date && group) {
-      imgElement.src = `Dataset/Preview/${date}_${group}.jpg`;
+      const imgPath = `Dataset/Preview/${date}_${group}.jpg`;
+      console.log(`🖼️ Setting preview image path: ${imgPath}`);
+      imgElement.src = imgPath;
       imgElement.alt = "Loading image...";
     } else {
       imgElement.src = "";
@@ -194,7 +299,7 @@
     }
   }
 
-  // Handle Submission [cite: 30, 43]
+  // Handle Form Submission with Detailed Logs
   document.getElementById('attendanceForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -203,7 +308,7 @@
     const loaderContainer = document.getElementById('loaderContainer');
     
     submitBtn.disabled = true;
-    loaderContainer.style.display = "block";
+    if (loaderContainer) loaderContainer.style.display = "block";
     alertDiv.style.display = "none";
 
     const payload = {
@@ -214,15 +319,27 @@
       serialNumber: document.getElementById('serialNumber').value.trim()
     };
 
+    console.log("📤 Submitting attendance payload:", payload);
+
     fetch(SCRIPT_URL, {
       method: 'POST',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
       body: JSON.stringify(payload)
     })
-    .then(res => res.json())
+    .then(res => {
+      console.log(`📥 Post Response Received. Status: ${res.status}`);
+      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+      return res.json();
+    })
     .then(data => {
+      console.log("✅ Post Data Success Response:", data);
       alertDiv.style.display = "block";
       if (data.status === "success") {
-        alertDiv.className = "green-box"; // Uses .green-box from styles_note.css
+        alertDiv.className = "green-box";
         alertDiv.innerText = data.message;
         document.getElementById('attendanceForm').reset();
         document.getElementById('groupName').innerHTML = '<option value="">-- Select Group --</option>';
@@ -233,17 +350,16 @@
       }
     })
     .catch(err => {
+      console.error("💥 Form Submission Error:", err);
       alertDiv.style.display = "block";
       alertDiv.className = "alert-error";
-      alertDiv.innerText = "Error connecting to server. Please try again.";
-      console.error(err);
+      alertDiv.innerText = "Error saving attendance. Please check browser console.";
     })
     .finally(() => {
       submitBtn.disabled = false;
-      loaderContainer.style.display = "none";
+      if (loaderContainer) loaderContainer.style.display = "none";
     });
   });
 </script>
-
 </body>
 </html>
