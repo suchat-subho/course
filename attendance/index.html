@@ -3,363 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Classroom Attendance Verification</title>
-  <link rel="stylesheet" href="styles_note.css">
-  <style>
-    /* Custom styling to align attendance elements with styles_note.css */
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #333;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    .image-preview {
-      width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background: white;
-      margin-top: 10px;
-    }
-    .alert-error {
-      background-color: #f8d7da;
-      color: #721c24;
-      padding: 10px;
-      border-radius: 5px;
-      margin: 10px 0;
-      font-family: Arial, sans-serif;
-    }
-
-    /* Full-Screen Loader Overlay */
-.page-loader-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.page-loader-content {
-  text-align: center;
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-/* Hide helper class */
-.page-loader-overlay.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-  </style>
+  <title>Student Attendance System</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="pageLoaderModal" class="page-loader-overlay">
-  <div class="page-loader-content">
-    <div class="loader"></div>
-    <p class="loading-message" id="pageLoaderText">Loading class schedules...</p>
-  </div>
+
+<div class="container">
+  <h1>Student Attendance Form</h1>
+
+  <form id="attendanceForm">
+    
+    <div class="form-group">
+      <label for="classDate">Select Date</label>
+      <select id="classDate" required>
+        <option value="">Loading dates...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="groupName">Select Group</label>
+      <select id="groupName" required disabled>
+        <option value="">Select Date First</option>
+      </select>
+    </div>
+
+    <div class="image-preview-box">
+      <span id="previewPlaceholder" class="image-placeholder">Select Date & Group to view preview</span>
+      <img id="previewImg" alt="Classroom seating layout">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Student Email</label>
+      <input type="email" id="email" placeholder="student@example.com" required>
+    </div>
+
+    <div class="form-group">
+      <label for="rollNumber">Roll Number</label>
+      <input type="text" id="rollNumber" placeholder="e.g. 102103001" required>
+    </div>
+
+    <div class="form-group">
+      <label for="serialNumber">Seat / Serial Number</label>
+      <input type="number" id="serialNumber" placeholder="e.g. 12" required min="1">
+    </div>
+
+    <button type="submit" id="submitBtn">Submit Attendance</button>
+  </form>
+
+  <div id="statusMessage" class="status-msg"></div>
 </div>
 
-  <div id="top-links">
-    <a href="#">Attendance Portal</a>
-  </div>
-
-  <div id="content-wrapper">
-    <div class="container">
-
-      <div class="note">
-        <h3>Mark Attendance</h3>
-        <form id="attendanceForm">
-          <div class="form-group">
-            <label for="classDate">Class Date</label>
-            <select id="classDate" required onchange="onDateChange()">
-              <option value="">-- Select Date --</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="groupName">Group Name</label>
-            <select id="groupName" required onchange="updatePreview()">
-              <option value="">-- Select Group --</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="email">Student Email ID</label>
-            <input type="email" id="email" placeholder="student@example.com" required>
-          </div>
-
-          <div class="form-group">
-            <label for="rollNumber">Roll Number</label>
-            <input type="text" id="rollNumber" placeholder="e.g. 10210345" required>
-          </div>
-
-          <div class="form-group">
-            <label for="serialNumber">Annotated Serial Number</label>
-            <input type="number" id="serialNumber" placeholder="e.g. 14" required>
-          </div>
-
-          <button type="submit" id="submitBtn" class="button" style="width: 100%; cursor: pointer;">Submit Attendance</button>
-        </form>
-
-        <div id="loaderContainer" class="loading-container" style="display: none; margin-top: 15px;">
-          <div class="loader"></div>
-          <div class="loading-message">Submitting attendance record...</div>
-        </div>
-
-        <div id="statusAlert" style="display: none;"></div>
-      </div>
-
-      <div class="note">
-        <h3>Classroom Image Preview</h3>
-        <p><em>Check your annotated serial number from the classroom preview image below.</em></p>
-        <img id="previewImg" class="image-preview" src="" alt="Select Date and Group to view image." onerror="this.src=''; this.alt='Image not found for the selected Date and Group.';">
-      </div>
-
-    </div>
-  </div>
-
-<script>
-  // Google Apps Script Deployed Web App URL
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwqoOye-M2llgR4hso3Z71EkoAwcCiTRo6CPqjVbdjCTo2exHA-bNa4CpkA7ReA5lFUg/exec";
-
-  // GitHub Repository Details
-  const REPO_OWNER = "suchat-subho";
-  const REPO_NAME = "course";
-  const FOLDER_PATH = "attendance/Dataset/Preview";
-
-  let availableData = {};
-
-  // Step 1: Fetch directory contents from GitHub REST API
-  window.addEventListener('DOMContentLoaded', () => {
-    console.log("🚀 [1/5] DOM fully loaded. Starting GitHub API fetch...");
-    fetchGitHubFiles();
-  });
-
-function fetchGitHubFiles() {
-  const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`;
-  console.log(`📡 [2/5] Fetching API Endpoint: ${apiUrl}`);
-
-  const pageLoader = document.getElementById('pageLoaderModal');
-  const loaderText = document.getElementById('pageLoaderText');
-
-  // 5-second timeout safeguard
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-  fetch(apiUrl, { signal: controller.signal })
-  .then(response => {
-    clearTimeout(timeoutId);
-    console.log(`📥 [3/5] GitHub API Response Status: ${response.status} ${response.statusText}`);
-    
-    if (response.status === 404) {
-      throw new Error(`404 Not Found. Path: '${FOLDER_PATH}'`);
-    } else if (response.status === 403) {
-      throw new Error("GitHub API rate limit reached. Please try again later.");
-    } else if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status}`);
-    }
-    
-    return response.json();
-  })
-  .then(files => {
-    console.log("📂 [4/5] Raw Files Received:", files);
-
-    if (!Array.isArray(files)) {
-      throw new Error("Invalid directory response from GitHub.");
-    }
-
-    availableData = {};
-    let matchedCount = 0;
-
-    files.forEach(file => {
-      if (/\.(jpg|jpeg|png)$/i.test(file.name)) {
-        const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
-        const parts = fileNameWithoutExt.split('_');
-
-        if (parts.length >= 4) {
-          const group = parts.pop();
-          const date = parts.join('_');
-
-          if (!availableData[date]) {
-            availableData[date] = [];
-          }
-          if (!availableData[date].includes(group)) {
-            availableData[date].push(group);
-          }
-          matchedCount++;
-        }
-      }
-    });
-
-    console.log(`✅ [5/5] Matched ${matchedCount} file(s). Populating dropdowns...`);
-    populateDateDropdown();
-
-    // Hide loader overlay once everything is populated
-    if (pageLoader) {
-      pageLoader.classList.add('hidden');
-    }
-  })
-  .catch(err => {
-    console.error("💥 ERROR during page init:", err);
-    
-    // Update loader UI to reflect the error instead of spinning endlessly
-    if (loaderText) {
-      const errorMsg = err.name === 'AbortError' 
-        ? "Request timed out. Check network connection or ad-blocker." 
-        : err.message;
-      
-      loaderText.style.color = "red";
-      loaderText.innerText = `Failed to load data: ${errorMsg}`;
-    }
-    
-    // Fallback dropdown text
-    const dateSelect = document.getElementById('classDate');
-    if (dateSelect) {
-      dateSelect.innerHTML = `<option value="">Error loading dates</option>`;
-    }
-  });
-}
-  function populateDateDropdown() {
-    const dateSelect = document.getElementById('classDate');
-    dateSelect.innerHTML = '<option value="">-- Select Date --</option>';
-
-    const dates = Object.keys(availableData);
-    
-    if (dates.length === 0) {
-      console.warn("⚠️ No valid date/group image matches found in folder.");
-      dateSelect.innerHTML = '<option value="">No files found in Dataset/Preview/</option>';
-      return;
-    }
-
-    dates.forEach(date => {
-      const opt = document.createElement('option');
-      opt.value = date;
-      opt.textContent = date;
-      dateSelect.appendChild(opt);
-    });
-
-    console.log("🎯 Date dropdown populated successfully with dates:", dates);
-  }
-
-  function onDateChange() {
-    const selectedDate = document.getElementById('classDate').value;
-    const groupSelect = document.getElementById('groupName');
-    
-    console.log(`📅 Date selected: '${selectedDate}'`);
-    groupSelect.innerHTML = '<option value="">-- Select Group --</option>';
-
-    if (selectedDate && availableData[selectedDate]) {
-      availableData[selectedDate].forEach(group => {
-        const opt = document.createElement('option');
-        opt.value = group;
-        opt.textContent = group;
-        groupSelect.appendChild(opt);
-      });
-      console.log(`👥 Group dropdown updated with groups:`, availableData[selectedDate]);
-    }
-
-    updatePreview();
-  }
-
-  function updatePreview() {
-    const date = document.getElementById('classDate').value;
-    const group = document.getElementById('groupName').value;
-    const imgElement = document.getElementById('previewImg');
-
-    if (date && group) {
-      const imgPath = `Dataset/Preview/${date}_${group}.jpg`;
-      console.log(`🖼️ Setting preview image path: ${imgPath}`);
-      imgElement.src = imgPath;
-      imgElement.alt = "Loading image...";
-    } else {
-      imgElement.src = "";
-      imgElement.alt = "Select Date and Group to view image.";
-    }
-  }
-
-  // Handle Form Submission with Detailed Logs
-  document.getElementById('attendanceForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const submitBtn = document.getElementById('submitBtn');
-    const alertDiv = document.getElementById('statusAlert');
-    const loaderContainer = document.getElementById('loaderContainer');
-    
-    submitBtn.disabled = true;
-    if (loaderContainer) loaderContainer.style.display = "block";
-    alertDiv.style.display = "none";
-
-    const payload = {
-      date: document.getElementById('classDate').value,
-      group: document.getElementById('groupName').value,
-      email: document.getElementById('email').value.trim(),
-      rollNumber: document.getElementById('rollNumber').value.trim(),
-      serialNumber: document.getElementById('serialNumber').value.trim()
-    };
-
-    console.log("📤 Submitting attendance payload:", payload);
-
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'cors',
-      redirect: 'follow',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
-      body: JSON.stringify(payload)
-    })
-    .then(res => {
-      console.log(`📥 Post Response Received. Status: ${res.status}`);
-      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      console.log("✅ Post Data Success Response:", data);
-      alertDiv.style.display = "block";
-      if (data.status === "success") {
-        alertDiv.className = "green-box";
-        alertDiv.innerText = data.message;
-        document.getElementById('attendanceForm').reset();
-        document.getElementById('groupName').innerHTML = '<option value="">-- Select Group --</option>';
-        document.getElementById('previewImg').src = "";
-      } else {
-        alertDiv.className = "alert-error";
-        alertDiv.innerText = data.message;
-      }
-    })
-    .catch(err => {
-      console.error("💥 Form Submission Error:", err);
-      alertDiv.style.display = "block";
-      alertDiv.className = "alert-error";
-      alertDiv.innerText = "Error saving attendance. Please check browser console.";
-    })
-    .finally(() => {
-      submitBtn.disabled = false;
-      if (loaderContainer) loaderContainer.style.display = "none";
-    });
-  });
-</script>
+<script src="script.js"></script>
 </body>
 </html>
