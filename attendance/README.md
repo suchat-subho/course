@@ -192,7 +192,7 @@ yolo-web-annotator/
 
 ```
 ## Workflow
-* After image uploding to `frontend/dataset/RawPicture/` 
+* After image uploding to `frontend/images/` 
 ```
 bash ./tools/generate_manifest.sh
 ```  
