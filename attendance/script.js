@@ -2,6 +2,7 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwqoOye-M2llgR4hso3Z71EkoAwcCiTRo6CPqjVbdjCTo2exHA-bNa4CpkA7ReA5lFUg/exec";
 
 let configData = {};
+let isZoomed = false;
 
 const dateSelect = document.getElementById('classDate');
 const groupSelect = document.getElementById('groupName');
@@ -134,7 +135,7 @@ function resetPreview() {
   previewPlaceholder.style.display = 'block';
 }
 
-// Fullscreen Image Handlers
+// Fullscreen Image & Zoom Handlers
 previewImg.addEventListener('click', () => {
   if (previewImg.src) {
     fullscreenImg.src = previewImg.src;
@@ -142,7 +143,41 @@ previewImg.addEventListener('click', () => {
   }
 });
 
+// Click image to toggle zoom
+fullscreenImg.addEventListener('click', (e) => {
+  e.stopPropagation(); // Prevents background click from closing modal
+  isZoomed = !isZoomed;
+
+  if (isZoomed) {
+    fullscreenImg.classList.add('zoomed');
+    updateZoomPosition(e);
+  } else {
+    resetZoom();
+  }
+});
+
+// Pan zoomed image following cursor position
+fullscreenImg.addEventListener('mousemove', (e) => {
+  if (isZoomed) {
+    updateZoomPosition(e);
+  }
+});
+
+function updateZoomPosition(e) {
+  const rect = fullscreenImg.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width) * 100;
+  const y = ((e.clientY - rect.top) / rect.height) * 100;
+  fullscreenImg.style.transformOrigin = `${x}% ${y}%`;
+}
+
+function resetZoom() {
+  isZoomed = false;
+  fullscreenImg.classList.remove('zoomed');
+  fullscreenImg.style.transformOrigin = 'center center';
+}
+
 function closeFullscreen() {
+  resetZoom();
   imageModal.classList.remove('active');
 }
 

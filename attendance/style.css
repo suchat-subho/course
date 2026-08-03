@@ -28,9 +28,7 @@ body {
   position: relative;
 }
 
-/* ==========================================
-   Navigation: Top-Left Home Button
-   ========================================== */
+/* Home Button (Top-Left) */
 .home-btn {
   position: fixed;
   top: 18px;
@@ -58,9 +56,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* ==========================================
-   Help Widget (Top-Right)
-   ========================================== */
+/* Help Widget (Top-Right) */
 .help-widget {
   position: fixed;
   top: 18px;
@@ -178,9 +174,7 @@ body {
   font-size: 0.8rem;
 }
 
-/* ==========================================
-   Main Layout & Form
-   ========================================== */
+/* Container & Form */
 .container {
   width: 100%;
   max-width: 650px;
@@ -284,24 +278,11 @@ button:disabled {
   text-align: center;
 }
 
-.status-msg.success { 
-  background-color: #dcfce7; 
-  color: var(--success); 
-}
+.status-msg.success { background-color: #dcfce7; color: var(--success); }
+.status-msg.error { background-color: #fee2e2; color: var(--error); }
+.status-msg.warning { background-color: #fef3c7; color: var(--warning); }
 
-.status-msg.error { 
-  background-color: #fee2e2; 
-  color: var(--error); 
-}
-
-.status-msg.warning { 
-  background-color: #fef3c7; 
-  color: var(--warning); 
-}
-
-/* ==========================================
-   Loading & Lightbox Modals
-   ========================================== */
+/* Modals & Zoom Effect */
 .modal-overlay, .image-modal-overlay {
   position: fixed;
   top: 0;
@@ -326,6 +307,7 @@ button:disabled {
   background-color: rgba(0, 0, 0, 0.9);
   z-index: 2000;
   padding: 20px;
+  overflow: hidden;
 }
 
 .modal-overlay.active, .image-modal-overlay.active {
@@ -358,11 +340,20 @@ button:disabled {
   to { transform: rotate(360deg); }
 }
 
+/* Zoomable Image */
 .fullscreen-image {
-  max-width: 95vw;
-  max-height: 95vh;
+  max-width: 90vw;
+  max-height: 90vh;
   object-fit: contain;
   border-radius: 6px;
+  cursor: zoom-in;
+  transition: transform 0.2s ease, transform-origin 0.05s ease-out;
+  transform-origin: center center;
+}
+
+.fullscreen-image.zoomed {
+  transform: scale(2.5);
+  cursor: zoom-out;
 }
 
 .close-modal {
@@ -373,4 +364,5 @@ button:disabled {
   font-size: 40px;
   font-weight: bold;
   cursor: pointer;
+  z-index: 2010;
 }
