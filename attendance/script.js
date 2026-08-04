@@ -1,5 +1,5 @@
 // Web App Deployment Endpoint
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwqoOye-M2llgR4hso3Z71EkoAwcCiTRo6CPqjVbdjCTo2exHA-bNa4CpkA7ReA5lFUg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGKmP2E9yDjd1MNhMdB7K-ZecdB5wAQhLcYbo89-vlQCP7XLhgLXJPdt7PE_JD1LWHMQ/exec";
 
 let configData = {};
 let isZoomed = false;
@@ -8,6 +8,7 @@ const dateSelect = document.getElementById('classDate');
 const groupSelect = document.getElementById('groupName');
 const previewImg = document.getElementById('previewImg');
 const previewPlaceholder = document.getElementById('previewPlaceholder');
+const serialInput = document.getElementById('serialNumber');
 const attendanceForm = document.getElementById('attendanceForm');
 const submitBtn = document.getElementById('submitBtn');
 const statusMessage = document.getElementById('statusMessage');
@@ -72,10 +73,10 @@ async function loadConfig() {
   }
 }
 
-// Populate Date Dropdown
+// Populate Date Dropdown (skips non-date header keys if present)
 function populateDates() {
   dateSelect.innerHTML = '<option value="">-- Select Date --</option>';
-  const dates = Object.keys(configData);
+  const dates = Object.keys(configData).filter(d => d !== 'Date');
 
   if (dates.length === 0) {
     dateSelect.innerHTML = '<option value="">No dates available</option>';
@@ -95,6 +96,7 @@ dateSelect.addEventListener('change', () => {
   const selectedDate = dateSelect.value;
   groupSelect.innerHTML = '<option value="">-- Select Group --</option>';
   resetPreview();
+  resetSerialLimit();
 
   if (selectedDate && configData[selectedDate]) {
     groupSelect.disabled = false;
@@ -110,8 +112,11 @@ dateSelect.addEventListener('change', () => {
   }
 });
 
-// Handle Group Selection Change -> Update Image
-groupSelect.addEventListener('change', updateImagePreview);
+// Handle Group Selection Change -> Update Image & Limits
+groupSelect.addEventListener('change', () => {
+  updateImagePreview();
+  updateSerialLimit();
+});
 
 function updateImagePreview() {
   const selectedDate = dateSelect.value;
@@ -135,7 +140,38 @@ function resetPreview() {
   previewPlaceholder.style.display = 'block';
 }
 
-// Fullscreen Image & Zoom Handlers
+// Helper: Get maxSerial for current selected Date and Group
+function getMaxSerial() {
+  const selectedDate = dateSelect.value;
+  const selectedGroup = groupSelect.value;
+
+  if (selectedDate && selectedGroup && configData[selectedDate]) {
+    const match = configData[selectedDate].find(item => item.group === selectedGroup);
+    if (match && match.maxSerial !== undefined && match.maxSerial !== null) {
+      return Number(match.maxSerial);
+    }
+  }
+  return null;
+}
+
+// Update input max attribute & placeholder based on maxSerial
+function updateSerialLimit() {
+  const maxSerial = getMaxSerial();
+
+  if (maxSerial !== null && !isNaN(maxSerial)) {
+    serialInput.max = maxSerial;
+    serialInput.placeholder = `e.g. 1 to ${maxSerial}`;
+  } else {
+    resetSerialLimit();
+  }
+}
+
+function resetSerialLimit() {
+  serialInput.removeAttribute('max');
+  serialInput.placeholder = "e.g. 12";
+}
+
+// Lightbox Zoom Event Listeners
 previewImg.addEventListener('click', () => {
   if (previewImg.src) {
     fullscreenImg.src = previewImg.src;
@@ -143,9 +179,8 @@ previewImg.addEventListener('click', () => {
   }
 });
 
-// Click image to toggle zoom
 fullscreenImg.addEventListener('click', (e) => {
-  e.stopPropagation(); // Prevents background click from closing modal
+  e.stopPropagation();
   isZoomed = !isZoomed;
 
   if (isZoomed) {
@@ -156,11 +191,8 @@ fullscreenImg.addEventListener('click', (e) => {
   }
 });
 
-// Pan zoomed image following cursor position
 fullscreenImg.addEventListener('mousemove', (e) => {
-  if (isZoomed) {
-    updateZoomPosition(e);
-  }
+  if (isZoomed) updateZoomPosition(e);
 });
 
 function updateZoomPosition(e) {
@@ -184,9 +216,7 @@ function closeFullscreen() {
 closeImageModal.addEventListener('click', closeFullscreen);
 
 imageModal.addEventListener('click', (e) => {
-  if (e.target === imageModal) {
-    closeFullscreen();
-  }
+  if (e.target === imageModal) closeFullscreen();
 });
 
 document.addEventListener('keydown', (e) => {
@@ -196,11 +226,26 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Handle Form Submission
+// Form Submission Handling
 attendanceForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  submitBtn.disabled = true;
   hideStatus();
+
+  const serialNum = parseInt(serialInput.value.trim(), 10);
+  const maxSerial = getMaxSerial();
+
+  // Validate Serial Number against upper bound
+  if (isNaN(serialNum) || serialNum < 1) {
+    showStatus('❌ Serial Number must be a valid number greater than 0.', 'error');
+    return;
+  }
+
+  if (maxSerial !== null && serialNum > maxSerial) {
+    showStatus(`❌ Serial Number cannot be greater than ${maxSerial} for this section.`, 'error');
+    return;
+  }
+
+  submitBtn.disabled = true;
   showModal("Submitting attendance...");
 
   const payload = {
@@ -208,7 +253,7 @@ attendanceForm.addEventListener('submit', async (e) => {
     group: groupSelect.value,
     email: document.getElementById('email').value.trim(),
     rollNumber: document.getElementById('rollNumber').value.trim(),
-    serialNumber: document.getElementById('serialNumber').value.trim()
+    serialNumber: serialInput.value.trim()
   };
 
   try {
@@ -221,12 +266,12 @@ attendanceForm.addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (result.status === 'success') {
-      showStatus('✅ ' + result.message, 'success');
-      document.getElementById('serialNumber').value = '';
+      showStatus('✅ ' + (result.message || 'Attendance marked successfully!'), 'success');
+      serialInput.value = '';
     } else if (result.status === 'conflict') {
-      showStatus('⚠️ ' + result.message, 'warning');
+      showStatus('⚠️ ' + (result.message || 'Duplicate submission detected.'), 'warning');
     } else {
-      showStatus('❌ ' + (result.message || 'An error occurred.'), 'error');
+      showStatus('❌ ' + (result.message || 'An error occurred during submission.'), 'error');
     }
   } catch (err) {
     showStatus('❌ Submission failed. Please try again.', 'error');
