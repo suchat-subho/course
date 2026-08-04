@@ -162,9 +162,9 @@ def annotate_image(img_path, json_path, output_path):
 
     # 2. Top-Right Overlay: Photo Taken Timestamp
     photo_timestamp = get_original_photo_time(img_path)
-    time_text = f"Taken: {photo_timestamp}"
+    time_text = f"Timestamp: {photo_timestamp}"
     font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 0.7
+    font_scale = 0.9
     font_thickness = 2
 
     (time_w, time_h), _ = cv2.getTextSize(
