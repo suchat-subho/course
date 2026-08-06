@@ -44,20 +44,28 @@ def run_pipeline():
     # ---------------------------------------------------------
     print_banner(2, "LAUNCHING INTERACTIVE ANNOTATOR")
     print("💡 Adjust bounding boxes in the window that opens:")
-    print("   • Press 'S' to save & continue to cleanup.")
-    print("   • Press 'Q' or ESC to skip fine-tuning and proceed.")
+    print("   • Press 'S' to save changes.")
+    print("   • Press 'Q' or ESC to skip fine-tuning.")
     
     # Run interactive OpenCV GUI tool
     annotate.run_interactive_annotator()
 
     # ---------------------------------------------------------
-    # STEP 3: Clean up, Convert to Face Bboxes, and Sort
+    # STEP 3: Optional Cleanup, Face Bbox Refinement & Sorting
     # ---------------------------------------------------------
-    print_banner(3, "RUNNING CLEANUP & ROW-BY-ROW SORTING")
-    cleanup.cleanup_and_sort_json(
-        iou_threshold=config.IOU_THRESHOLD, 
-        row_tolerance=config.ROW_TOLERANCE
-    )
+    print_banner(3, "CLEANUP & ROW SORTING (OPTIONAL)")
+    
+    # Ask the user if they want to perform cleanup
+    user_choice = input("👉 Do you want to run face cleanup & row-by-row sorting? (y/N): ").strip().lower()
+
+    if user_choice in ("y", "yes"):
+        print("\n🧹 Executing Cleanup...")
+        cleanup.cleanup_and_sort_json(
+            iou_threshold=config.IOU_THRESHOLD, 
+            row_tolerance=config.ROW_TOLERANCE
+        )
+    else:
+        print("\n⏩ Skipped cleanup & sorting. Keeping manual annotations as-is.")
 
     # ---------------------------------------------------------
     # STEP 4: Regenerate Final Visualizer Preview
