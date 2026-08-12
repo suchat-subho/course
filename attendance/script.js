@@ -285,10 +285,24 @@ function showStatus(text, type) {
   statusMessage.textContent = text;
   statusMessage.className = `status-msg ${type}`;
   statusMessage.style.display = 'block';
+  checkStatusHelp();
 }
 
 function hideStatus() {
   statusMessage.style.display = 'none';
+}
+
+function checkStatusHelp() {
+  const statusMessage = document.getElementById("statusMessage");
+  const statusHelp = document.getElementById("statusHelp");
+
+  if (!statusMessage || !statusHelp) return;
+
+  if (statusMessage.textContent.includes("has already been claimed")) {
+    statusHelp.style.display = "block";
+  } else {
+    statusHelp.style.display = "none";
+  }
 }
 
 // Initialize Page
