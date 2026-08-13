@@ -297,8 +297,21 @@ function hideStatus() {
 function checkStatusHelp() {
   const statusMessage = document.getElementById("statusMessage");
   const statusHelp = document.getElementById("statusHelp");
+  const statusOk = document.getElementById("okStatus");
 
   if (!statusMessage || !statusHelp) return;
+
+  if (statusMessage.textContent.includes("has already been claimed")) {
+    statusHelp.style.display = "block";
+  } else {
+    statusHelp.style.display = "none";
+    if (statusMessage.textContent.includes("Attendance marked successfully")) {
+        statusOk.style.display = "block";
+    } else {
+        statusOk.style.display = "none";
+    }
+  }
+}
 
   if (statusMessage.textContent.includes("has already been claimed")) {
     statusHelp.style.display = "block";
