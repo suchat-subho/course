@@ -73,6 +73,12 @@ def run_pipeline():
 
     choice = input("\n👉 Enter option number (1-4, default is 1): ").strip()
 
+    if choice == "1":
+        print("\n🧹 Executing Full Cleanup & Row Sorting...")
+        cleanup.cleanup_and_sort_json(
+            iou_threshold=config.IOU_THRESHOLD, 
+            row_tolerance=config.ROW_TOLERANCE
+        )
     if choice == "2":
         print("\n📌 Running Row Sorting Only...")
         cleanup.sort_only(
@@ -83,15 +89,8 @@ def run_pipeline():
         cleanup.cleanup_only(
             iou_threshold=config.IOU_THRESHOLD
         )
-    elif choice == "4":
-        print("\n⏩ Skipped cleanup & sorting. Keeping manual annotations as-is.")
     else:
-        # Default option 1
-        print("\n🧹 Executing Full Cleanup & Row Sorting...")
-        cleanup.cleanup_and_sort_json(
-            iou_threshold=config.IOU_THRESHOLD, 
-            row_tolerance=config.ROW_TOLERANCE
-        )
+        print("\n⏩ Skipped cleanup & sorting. Keeping manual annotations as-is.")        
     # ---------------------------------------------------------
     # STEP 4: Regenerate Final Visualizer Preview
     # ---------------------------------------------------------
