@@ -4,7 +4,7 @@ import random
 import sys
 
 
-DEFAULT_IMAGE_NAME = "30_07_2026_2C7"
+DEFAULT_IMAGE_NAME = "test_2C4"
 
 
 # ==========================================
@@ -12,11 +12,11 @@ DEFAULT_IMAGE_NAME = "30_07_2026_2C7"
 # ==========================================
 
 # Directory Paths
-IMAGE_PATH = "Dataset/RawPicture/"
-ANNOTATION_PATH = "Dataset/Annotated/"
-AUGMENTED_IMAGE_PATH = "Dataset/Augmented/Images/"
-AUGMENTED_ANNOTATION_PATH = "Dataset/Augmented/"
-PREVIEW_PATH="Dataset/Preview/"
+IMAGE_PATH = "../Dataset/RawPicture/"
+ANNOTATION_PATH = "../Dataset/Annotated/"
+AUGMENTED_IMAGE_PATH = "../Dataset/Augmented/Images/"
+AUGMENTED_ANNOTATION_PATH = "../Dataset/Augmented/"
+PREVIEW_PATH="../Dataset/Preview/"
 
 # Default Target File
 IMAGE_EXTN = ".jpg"
