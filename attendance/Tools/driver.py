@@ -64,6 +64,8 @@ def run_pipeline():
 # ---------------------------------------------------------
     # STEP 3: Cleanup & Row Sorting Options
     # ---------------------------------------------------------
+    overlappingArea=cleanup.calculate_total_overlapping_area()
+    print(f"Tot Overlap Area  : {overlappingArea}")
     print_banner(3, "CLEANUP & ROW SORTING OPTIONS")
     print(" Choose an option:")
     print("   [1] Run Full Cleanup (Face Refinement + NMS Overlap Removal) & Row Sorting")
@@ -71,14 +73,8 @@ def run_pipeline():
     print("   [3] Run Cleanup ONLY (Face Refinement + NMS Overlap Removal)")
     print("   [4] Skip Cleanup & Sorting")
 
-    choice = input("\n👉 Enter option number (1-4, default is 1): ").strip()
+    choice = input("\n👉 Enter option number (1-4, default is 4): ").strip()
 
-    if choice == "1":
-        print("\n🧹 Executing Full Cleanup & Row Sorting...")
-        cleanup.cleanup_and_sort_json(
-            iou_threshold=config.IOU_THRESHOLD, 
-            row_tolerance=config.ROW_TOLERANCE
-        )
     if choice == "2":
         print("\n📌 Running Row Sorting Only...")
         cleanup.sort_only(
@@ -89,8 +85,15 @@ def run_pipeline():
         cleanup.cleanup_only(
             iou_threshold=config.IOU_THRESHOLD
         )
+    elif choice == "4":
+        print("\n⏩ Skipped cleanup & sorting. Keeping manual annotations as-is.")
     else:
-        print("\n⏩ Skipped cleanup & sorting. Keeping manual annotations as-is.")        
+        # Default option 1
+        print("\n🧹 Executing Full Cleanup & Row Sorting...")
+        cleanup.cleanup_and_sort_json(
+            iou_threshold=config.IOU_THRESHOLD, 
+            row_tolerance=config.ROW_TOLERANCE
+        )
     # ---------------------------------------------------------
     # STEP 4: Regenerate Final Visualizer Preview
     # ---------------------------------------------------------
