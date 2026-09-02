@@ -1,0 +1,6 @@
+path: /home/subhrendu/GIT/course/attendance/Dataset/YOLO_Formatted
+train: train/images
+val: val/images
+
+names:
+  0: student_face
