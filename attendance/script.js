@@ -78,7 +78,16 @@ async function loadConfig() {
 // Populate Date Dropdown (skips non-date header keys if present)
 function populateDates() {
   dateSelect.innerHTML = '<option value="">-- Select Date --</option>';
-  const dates = Object.keys(configData).filter(d => d !== 'Date');
+
+  const dates = Object.keys(configData)
+    .filter(d => d !== 'Date')
+    .sort((a, b) => {
+      const [dayA, monthA, yearA] = a.split('_').map(Number);
+      const [dayB, monthB, yearB] = b.split('_').map(Number);
+
+      return new Date(yearB, monthB - 1, dayB) -
+             new Date(yearA, monthA - 1, dayA);
+    });
 
   if (dates.length === 0) {
     dateSelect.innerHTML = '<option value="">No dates available</option>';
@@ -92,6 +101,25 @@ function populateDates() {
     dateSelect.appendChild(opt);
   });
 }
+
+
+
+/*function populateDates() {
+  dateSelect.innerHTML = '<option value="">-- Select Date --</option>';
+  const dates = Object.keys(configData).filter(d => d !== 'Date');
+
+  if (dates.length === 0) {
+    dateSelect.innerHTML = '<option value="">No dates available</option>';
+    return;
+  }
+
+  dates.forEach(date => {
+    const opt = document.createElement('option');
+    opt.value = date;
+    opt.textContent = date.replace(/_/g, '/');
+    dateSelect.appendChild(opt);
+  });
+}*/
 
 // Handle Date Selection Change
 dateSelect.addEventListener('change', () => {
