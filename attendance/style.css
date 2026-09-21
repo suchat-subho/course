@@ -283,10 +283,10 @@ button:disabled {
   padding: 12px;
   border-radius: 6px;
   font-size: 0.9rem;
-  font-weight: bold;
   color: red;
   display: none;
   text-align: center;
+  font-family: "Courier New", monospace;
 }
 
 .ok-status{
