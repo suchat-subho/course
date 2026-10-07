@@ -52,6 +52,16 @@ Create Annotations for the attached picture in yolo annotations in json. In the 
 * Move to `Tools` folder `$ cd Tools/`
 * Execute `python3 driver.py -f 31_07_2026_2C7`
 * Run `python visualizer.py -f <filename>`
+	- Resolve dependencies if there is any issue related to that.
+	- ```
+	sudo apt install pipx 
+	sudo apt install python3-tk
+	pipx install uv
+	uv pip install opencv-python shapely --system
+	
+	pip
+
+	  ```
 * The tool shortcuts are as follows.
 	- Save annotations by pressing `s`
 	- Quit without saving by pressing `q` or ESC
