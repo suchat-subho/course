@@ -78,7 +78,10 @@ Create Annotations for the attached picture in yolo annotations in json. In the 
 	- Quit without saving by pressing `q` or ESC
 	- Undo one by one by pressing `z`
 	- Reset newly added boxes by pressing `r`
- 
+### Get student count from the image
+```
+bash ExtractHeadcountFromPicture.sh ../Dataset/Preview/ > ~/ImageList.txt
+```
 ### CleanUp annotation
 * Cleanup and arrange the boxes in a particular order
 ```
