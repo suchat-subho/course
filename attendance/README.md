@@ -56,8 +56,8 @@ Create Annotations for the attached picture in yolo annotations in json. In the 
 	- ```
 	sudo apt install pipx 
 	sudo apt install python3-tk
-	pipx install uv
-	uv pip install opencv-python shapely --system
+	sudo apt install python3-opencv
+	sudo apt install python3-shapely
 	  ```
 * The tool shortcuts are as follows.
 	- Save annotations by pressing `s`
